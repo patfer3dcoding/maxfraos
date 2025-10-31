@@ -11,7 +11,8 @@ export const SearchIcon = ({ className = 'w-5 h-5' }: { className?: string }) =>
   </svg>
 );
 
-export const NotepadIcon = ({ className = 'w-8 h-8' }: { className?: string }) => (
+// FIX: Updated function signature to accept className as a direct argument to match AppConfig type.
+export const NotepadIcon = (className: string = 'w-8 h-8') => (
   <svg className={className} viewBox="0 0 256 256" fill="none">
     <rect width="256" height="256" fill="none"/>
     <path d="M184,32H72A16,16,0,0,0,56,48V208a16,16,0,0,0,16,16H184a16,16,0,0,0,16-16V48A16,16,0,0,0,184,32Zm-96,24h80v8H88Z" fill="#a8cce3"/>
@@ -30,7 +31,8 @@ export const BrowserIcon = ({ className = 'w-8 h-8' }: { className?: string }) =
   </svg>
 );
 
-export const MaxfraAIBrowserIcon = ({ className = 'w-8 h-8' }: { className?: string }) => (
+// FIX: Updated function signature to accept className as a direct argument to match AppConfig type.
+export const MaxfraAIBrowserIcon = (className: string = 'w-8 h-8') => (
     <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="12" cy="12" r="10" fill="url(#ai-grad)" />
       <defs>
@@ -43,7 +45,8 @@ export const MaxfraAIBrowserIcon = ({ className = 'w-8 h-8' }: { className?: str
     </svg>
 );
 
-export const FileExplorerIcon = ({ className = 'w-8 h-8' }: { className?: string }) => (
+// FIX: Updated function signature to accept className as a direct argument to match AppConfig type.
+export const FileExplorerIcon = (className: string = 'w-8 h-8') => (
   <svg className={className} viewBox="0 0 24 24" fill="#FFCA28">
     <path d="M10 4H4c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
   </svg>
@@ -61,14 +64,16 @@ export const FileIcon = ({ className = 'w-8 h-8' }: { className?: string }) => (
   </svg>
 );
 
-export const SettingsIcon = ({ className = 'w-8 h-8' }: { className?: string }) => (
+// FIX: Updated function signature to accept className as a direct argument to match AppConfig type.
+export const SettingsIcon = (className: string = 'w-8 h-8') => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="3"></circle>
     <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
   </svg>
 );
 
-export const StudentDatabaseIcon = ({ className = 'w-8 h-8' }: { className?: string }) => (
+// FIX: Updated function signature to accept className as a direct argument to match AppConfig type.
+export const StudentDatabaseIcon = (className: string = 'w-8 h-8') => (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
         <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 1 4 14.5V4.5A2.5 2.5 0 0 1 6.5 2z"></path>
@@ -77,7 +82,8 @@ export const StudentDatabaseIcon = ({ className = 'w-8 h-8' }: { className?: str
     </svg>
 );
 
-export const CheckInIcon = ({ className = 'w-8 h-8' }: { className?: string }) => (
+// FIX: Updated function signature to accept className as a direct argument to match AppConfig type.
+export const CheckInIcon = (className: string = 'w-8 h-8') => (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M8 11.586L10.293 9.293a1 1 0 0 1 1.414 0L16 13.586" />
         <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z" />
@@ -88,7 +94,8 @@ export const CheckInIcon = ({ className = 'w-8 h-8' }: { className?: string }) =
 );
 
 
-export const CalculatorIcon = ({ className = 'w-8 h-8' }: { className?: string }) => (
+// FIX: Updated function signature to accept className as a direct argument to match AppConfig type.
+export const CalculatorIcon = (className: string = 'w-8 h-8') => (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
         <line x1="8" y1="7" x2="16" y2="7"></line>
@@ -97,7 +104,8 @@ export const CalculatorIcon = ({ className = 'w-8 h-8' }: { className?: string }
     </svg>
 );
 
-export const CalendarIcon = ({ className = 'w-8 h-8' }: { className?: string }) => (
+// FIX: Updated function signature to accept className as a direct argument to match AppConfig type.
+export const CalendarIcon = (className: string = 'w-8 h-8') => (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
         <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -124,7 +132,8 @@ export const ShareIcon = ({ className = 'w-5 h-5' }: { className?: string }) => 
     </svg>
 );
 
-export const ClipIcon = ({ className = 'w-8 h-8' }: { className?: string }) => (
+// FIX: Updated function signature to accept className as a direct argument to match AppConfig type.
+export const ClipIcon = (className: string = 'w-8 h-8') => (
     <img 
         src="https://upload.wikimedia.org/wikipedia/commons/8/81/Logo_de_Clip.svg" 
         alt="Clip Logo" 
@@ -156,7 +165,8 @@ export const MaxfraOutlookIcon = ({ className = 'w-8 h-8' }: { className?: strin
   </svg>
 );
 
-export const MaxfraOfficeSuiteIcon = ({ className = 'w-8 h-8' }: { className?: string }) => (
+// FIX: Updated function signature to accept className as a direct argument to match AppConfig type.
+export const MaxfraOfficeSuiteIcon = (className: string = 'w-8 h-8') => (
   <svg className={className} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect width="64" height="64" rx="8" fill="#4A4A4A"/>
     <rect x="12" y="12" width="18" height="18" rx="3" fill="#2B579A"/>
@@ -165,6 +175,40 @@ export const MaxfraOfficeSuiteIcon = ({ className = 'w-8 h-8' }: { className?: s
   </svg>
 );
 
+export const WindowsLogoIcon = ({ className = 'w-8 h-8' }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="23" height="23" fill="#F25022"/>
+    <rect x="27" y="0" width="23" height="23" fill="#7FBA00"/>
+    <rect x="0" y="27" width="23" height="23" fill="#00A4EF"/>
+    <rect x="27" y="27" width="23" height="23" fill="#FFB900"/>
+  </svg>
+);
+
+// FIX: Updated function signature to accept className as a direct argument to match AppConfig type.
+export const LibraryIcon = (className: string = 'w-8 h-8') => (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+        <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 1 4 14.5V4.5A2.5 2.5 0 0 1 6.5 2z"></path>
+        <line x1="12" y1="2" x2="12" y2="17"></line>
+        <path d="M16 6h-4"></path>
+        <path d="M16 10h-4"></path>
+    </svg>
+);
+
+// FIX: Updated function signature to accept className as a direct argument to match AppConfig type.
+export const ImageIcon = (className: string = 'w-8 h-8') => (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+        <polyline points="21 15 16 10 5 21"></polyline>
+    </svg>
+);
+
+export const UploadIcon = ({ className = 'w-5 h-5' }: { className?: string }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+    </svg>
+);
 
 interface WindowControlsProps {
   onMinimize: () => void;

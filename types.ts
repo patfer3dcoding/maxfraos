@@ -117,6 +117,33 @@ export interface CheckInLog {
   studentId: string;
   checkInTime: string; // ISO 8601 format
   signature: string; // base64 data URL
+  appointmentId?: string;
+}
+
+// --- Finance Calculator Type ---
+export interface Transaction {
+  id: string;
+  date: string; // ISO 8601 format
+  description: string;
+  amount: number;
+  type: 'income' | 'expense';
+}
+
+// --- Appointment Book Type ---
+export interface Appointment {
+  id: string;
+  location: 'Perisur' | 'Cd Brisas' | 'Polanco';
+  date: string; // "YYYY-MM-DD"
+  time: string; // "HH:MM"
+  studentId?: string;
+  studentName: string;
+  teacher: 'Fernando' | 'Maggi' | 'Rosi';
+  type: 'Course' | 'Special';
+  details: string; // Course or Special name
+  attendance?: 'Pending' | 'Present' | 'Absent';
+  notes?: string;
+  signature?: string; // base64 data URL for student signature
+  learningLog?: string; // What was learned in the session
 }
 
 

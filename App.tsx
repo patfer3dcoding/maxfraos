@@ -4,6 +4,7 @@ import Taskbar from './components/Taskbar';
 import StartMenu from './components/StartMenu';
 import Window from './components/Window';
 import { APPS, MAXFRA_LOGO_B64 } from './constants';
+import { WindowsLogoIcon } from './components/icons';
 import type { WindowState, FSNode, FileData, DirectoryNode, Student } from './types';
 
 const BACKGROUNDS = {
@@ -123,6 +124,7 @@ const getInitialFileSystem = (): DirectoryNode => {
                 { type: 'file', name: 'maxfra-students.json', content: studentsFileContent },
                 { type: 'file', name: 'maxfra-appointments.json', content: appointmentsFileContent },
                 { type: 'file', name: 'maxfra-check-in-log.json', content: '[]' },
+                { type: 'file', name: 'maxfra-transactions.json', content: '[]' },
             ]},
             { type: 'file', name: 'system.config', content: 'Initial system configuration.' },
         ]
@@ -259,8 +261,11 @@ const App: React.FC = () => {
   return (
     <div className="h-screen w-screen bg-cover bg-center" style={{ backgroundImage: backgroundImageUrl }}>
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-none">
-        <img src={MAXFRA_LOGO_B64} alt="Maxfra Academy Logo" className={`h-48 w-48 opacity-90 ${backgroundId === 'matrix' ? 'invert' : ''}`} />
-        <h1 className="text-4xl font-light text-white mt-4 [text-shadow:2px_2px_4px_rgba(0,0,0,0.7)]">
+        <div className="flex items-center gap-4">
+            <WindowsLogoIcon className="h-24 w-24" />
+            <img src={MAXFRA_LOGO_B64} alt="Maxfra Academy Logo" className={`h-32 w-32 opacity-90 ${backgroundId === 'matrix' ? 'invert' : ''}`} />
+        </div>
+        <h1 className="text-4xl font-light text-white mt-6 [text-shadow:2px_2px_4px_rgba(0,0,0,0.7)]">
             Maxfra Academy OS
         </h1>
       </div>
