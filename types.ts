@@ -22,6 +22,7 @@ export interface AppProps {
 export interface AppConfig {
   id: string;
   title: string;
+  // FIX: Updated icon type to consistently expect a function that takes a className string.
   icon: (className?: string) => JSX.Element;
   component: ComponentType<Partial<AppProps>>; // All apps receive AppProps
   isPinned?: boolean;

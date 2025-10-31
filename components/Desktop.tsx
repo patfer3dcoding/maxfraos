@@ -16,6 +16,7 @@ const Desktop: React.FC<DesktopProps> = ({ apps, openApp }) => {
             onDoubleClick={() => openApp(app.id)}
             className="flex flex-col items-center p-3 rounded hover:bg-white/10 w-28"
           >
+            {/* FIX: Call app.icon as a function */}
             {app.icon('w-12 h-12')}
             <span className="text-white text-sm mt-2 text-center shadow-black [text-shadow:1px_1px_2px_var(--tw-shadow-color)]">{app.title}</span>
           </button>

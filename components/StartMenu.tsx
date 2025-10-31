@@ -38,6 +38,7 @@ const StartMenu: React.FC<StartMenuProps> = ({ isOpen, apps, openApp, closeStart
                 onClick={() => openApp(app.id)}
                 className="w-full flex items-center gap-4 p-3 hover:bg-white/10 rounded"
               >
+                {/* FIX: Call app.icon as a function */}
                 {app.icon('w-8 h-8')}
                 <span className="text-base">{app.title}</span>
               </button>

@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { FolderIcon, FileIcon, ChevronLeftIcon, ChevronRightIcon, ReloadIcon, HomeIcon, PlusIcon, CloseIcon, MaxfraWordIcon, MaxfraExcelIcon, MaxfraOutlookIcon, TrashIcon, WhatsAppIcon, SearchIcon, CheckInIcon, ShareIcon, UploadIcon } from '../components/icons';
 import type { AppProps, FSNode, FileNode, DirectoryNode, FileData, Student, CheckInLog, Transaction, Appointment } from '../types';
 import { MAXFRA_LOGO_B64, LIBRARY_IMAGES } from '../constants';
+import { CheckInApp } from './CheckInApp'; // Import the new CheckInApp
 
 // --- Filesystem Utilities ---
 const findNodeByPath = (root: FSNode, path: string[]): DirectoryNode | null => {
@@ -44,6 +45,20 @@ const saveFileToFS = (root: FSNode, path: string[], fileName: string, content: s
     }
     
     return newRoot;
+};
+
+// FIX: Added useDebounce hook definition to resolve "Cannot find name 'useDebounce'" error.
+const useDebounce = <T,>(value: T, delay: number): T => {
+    const [debouncedValue, setDebouncedValue] = useState<T>(value);
+    useEffect(() => {
+      const handler = setTimeout(() => {
+        setDebouncedValue(value);
+      }, delay);
+      return () => {
+        clearTimeout(handler);
+      };
+    }, [value, delay]);
+    return debouncedValue;
 };
 
 
@@ -247,20 +262,26 @@ export const MaxfraAiBrowserApp: React.FC<Partial<AppProps>> = () => {
                     <div className="flex items-center pl-3 pr-2 py-2 cursor-pointer grow shrink min-w-0">
                       <span className="truncate text-sm select-none">{tab.title}</span>
                     </div>
+                    {/* FIX: Changed JSX component to function call for CloseIcon */}
                     <button onClick={(e) => handleCloseTab(e, tab.id)} className="p-1 mr-1 rounded-full hover:bg-red-500 hover:text-white shrink-0">
-                        <CloseIcon className="w-3.5 h-3.5" />
+                        {CloseIcon("w-3.5 h-3.5")}
                     </button>
                 </div>
             ))}
+            {/* FIX: Changed JSX component to function call for PlusIcon */}
             <button onClick={handleAddTab} className="p-1 ml-1 mb-1 rounded-md hover:bg-gray-400/50">
-                <PlusIcon className="w-5 h-5" />
+                {PlusIcon("w-5 h-5")}
             </button>
         </div>
         <div className="flex-shrink-0 p-1.5 bg-gray-200 flex items-center gap-1 border-b border-gray-300">
-            <button onClick={handleBack} className="p-2 rounded-full hover:bg-gray-300 text-gray-700"><ChevronLeftIcon /></button>
-            <button onClick={handleForward} className="p-2 rounded-full hover:bg-gray-300 text-gray-700"><ChevronRightIcon /></button>
-            <button onClick={handleRefresh} className="p-2 rounded-full hover:bg-gray-300 text-gray-700"><ReloadIcon /></button>
-            <button onClick={handleHome} className="p-2 rounded-full hover:bg-gray-300 text-gray-700"><HomeIcon /></button>
+            {/* FIX: Changed JSX component to function call for ChevronLeftIcon */}
+            <button onClick={handleBack} className="p-2 rounded-full hover:bg-gray-300 text-gray-700">{ChevronLeftIcon()}</button>
+            {/* FIX: Changed JSX component to function call for ChevronRightIcon */}
+            <button onClick={handleForward} className="p-2 rounded-full hover:bg-gray-300 text-gray-700">{ChevronRightIcon()}</button>
+            {/* FIX: Changed JSX component to function call for ReloadIcon */}
+            <button onClick={handleRefresh} className="p-2 rounded-full hover:bg-gray-300 text-gray-700">{ReloadIcon()}</button>
+            {/* FIX: Changed JSX component to function call for HomeIcon */}
+            <button onClick={handleHome} className="p-2 rounded-full hover:bg-gray-300 text-gray-700">{HomeIcon()}</button>
             <form onSubmit={handleNavigate} className="flex-grow">
                 <input
                     type="text"
@@ -288,19 +309,6 @@ export const MaxfraAiBrowserApp: React.FC<Partial<AppProps>> = () => {
         </div>
       </div>
     );
-};
-
-const useDebounce = <T,>(value: T, delay: number): T => {
-    const [debouncedValue, setDebouncedValue] = useState<T>(value);
-    useEffect(() => {
-      const handler = setTimeout(() => {
-        setDebouncedValue(value);
-      }, delay);
-      return () => {
-        clearTimeout(handler);
-      };
-    }, [value, delay]);
-    return debouncedValue;
 };
 
 export const FileExplorerApp: React.FC<Partial<AppProps>> = ({ fs, setFs, openApp }) => {
@@ -392,7 +400,8 @@ export const FileExplorerApp: React.FC<Partial<AppProps>> = ({ fs, setFs, openAp
             <div className="flex items-center p-2 bg-gray-100 border-b gap-2 flex-wrap">
                 <button onClick={handleBack} disabled={currentPath.length === 0} className="px-3 py-1.5 bg-gray-200 rounded disabled:opacity-50 text-black">Back</button>
                 <button onClick={() => fileInputRef.current?.click()} className="px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2">
-                    <UploadIcon className="w-4 h-4" />
+                    {/* FIX: Changed JSX component to function call for UploadIcon */}
+                    {UploadIcon("w-4 h-4")}
                     Upload Image
                 </button>
                 <input
@@ -416,14 +425,16 @@ export const FileExplorerApp: React.FC<Partial<AppProps>> = ({ fs, setFs, openAp
                     {itemsToDisplay.map(node => (
                         <div key={node.name} className="flex flex-col items-center p-2 rounded hover:bg-blue-100 cursor-pointer"
                             onDoubleClick={() => node.type === 'directory' ? handleNavigate(node.name) : handleOpenFile(node as FileNode)}>
-                            {node.type === 'directory' ? <FolderIcon /> : <FileIcon />}
+                            {/* FIX: Changed JSX component to function call for FolderIcon/FileIcon */}
+                            {node.type === 'directory' ? FolderIcon() : FileIcon()}
                             <span className="text-xs mt-1 text-center break-all">{node.name}</span>
                         </div>
                     ))}
                      {searchResults.map((result, index) => (
                         <div key={`${result.node.name}-${index}`} className="flex flex-col items-center p-2 rounded hover:bg-green-100 cursor-pointer"
                             onDoubleClick={() => handleSearchResultClick(result)}>
-                            {result.node.type === 'directory' ? <FolderIcon /> : <FileIcon />}
+                            {/* FIX: Changed JSX component to function call for FolderIcon/FileIcon */}
+                            {result.node.type === 'directory' ? FolderIcon() : FileIcon()}
                             <span className="text-xs mt-1 text-center break-all">{result.node.name}</span>
                         </div>
                     ))}
@@ -649,10 +660,13 @@ const AppointmentDetailModal = ({ appointmentGroup, studentsById, onClose, onUpd
                         <p className="text-gray-500">{appointmentGroup.location} @ {appointmentGroup.time}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <button onClick={() => onPrintSave(appointmentGroup)} className="p-2 rounded-full hover:bg-gray-200" title="Print/Save"><ShareIcon/></button>
-                         <button onClick={() => { if(window.confirm('Are you sure you want to delete this entire appointment group?')) onDeleteAppointmentGroup(appointmentGroup.id) }} className="p-2 rounded-full hover:bg-red-100" title="Delete Appointment"><TrashIcon className="text-red-500"/></button>
+                        {/* FIX: Changed JSX component to function call for ShareIcon */}
+                        <button onClick={() => onPrintSave(appointmentGroup)} className="p-2 rounded-full hover:bg-gray-200" title="Print/Save">{ShareIcon()}</button>
+                         {/* FIX: Changed JSX component to function call for TrashIcon */}
+                         <button onClick={() => { if(window.confirm('Are you sure you want to delete this entire appointment group?')) onDeleteAppointmentGroup(appointmentGroup.id) }} className="p-2 rounded-full hover:bg-red-100" title="Delete Appointment">{TrashIcon("text-red-500")}</button>
+                        {/* FIX: Changed JSX component to function call for CloseIcon */}
                         <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-200">
-                            <CloseIcon className="w-5 h-5" />
+                            {CloseIcon("w-5 h-5")}
                         </button>
                     </div>
                 </div>
@@ -671,7 +685,7 @@ const AppointmentDetailModal = ({ appointmentGroup, studentsById, onClose, onUpd
 
 // --- Calendar View Components ---
 
-const DailyView = ({ groupedAppointments, onAppointmentClick, onExport }: { groupedAppointments: GroupedAppointment[], onAppointmentClick: (app: GroupedAppointment) => void, onExport: (location: Location) => void }) => {
+const DailyView = React.memo(({ groupedAppointments, onAppointmentClick, onExport }: { groupedAppointments: GroupedAppointment[], onAppointmentClick: (app: GroupedAppointment) => void, onExport: (location: Location) => void }) => {
     const timeSlots = Array.from({ length: 11 }, (_, i) => `${i + 10}:00`);
 
     return (
@@ -684,7 +698,8 @@ const DailyView = ({ groupedAppointments, onAppointmentClick, onExport }: { grou
                              <th key={loc} className={`p-3 font-semibold text-left text-gray-600 border-b relative group ${index < LOCATIONS.length - 1 ? 'border-r' : ''}`}>
                                 <span>{loc}</span>
                                 <button onClick={() => onExport(loc)} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-gray-200 opacity-0 group-hover:opacity-100 hover:bg-gray-300 transition-opacity" title={`Export ${loc} schedule`}>
-                                    <ShareIcon className="w-4 h-4 text-gray-600" />
+                                    {/* FIX: Changed JSX component to function call for ShareIcon */}
+                                    {ShareIcon("w-4 h-4 text-gray-600")}
                                 </button>
                             </th>
                         ))}
@@ -718,9 +733,9 @@ const DailyView = ({ groupedAppointments, onAppointmentClick, onExport }: { grou
             </table>
         </div>
     );
-};
+});
 
-const WeeklyView = ({ currentDate, groupedAppointments, onAppointmentClick }: { currentDate: Date, groupedAppointments: GroupedAppointment[], onAppointmentClick: (app: GroupedAppointment) => void }) => {
+const WeeklyView = React.memo(({ currentDate, groupedAppointments, onAppointmentClick }: { currentDate: Date, groupedAppointments: GroupedAppointment[], onAppointmentClick: (app: GroupedAppointment) => void }) => {
     const weekDays: Date[] = [];
     const startOfWeek = new Date(currentDate);
     const day = startOfWeek.getDay();
@@ -737,7 +752,7 @@ const WeeklyView = ({ currentDate, groupedAppointments, onAppointmentClick }: { 
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
             <div className="grid grid-cols-7">
                 {weekDays.map((day, index) => (
-                    <div key={index} className={`border-r ${index === 6 ? 'border-r-0' : ''}`}>
+                    <div key={day.toISOString()} className={`border-r ${index === 6 ? 'border-r-0' : ''}`}>
                         <div className="text-center p-2 border-b bg-gray-50">
                             <p className="text-sm font-semibold text-gray-600">{day.toLocaleDateString('default', { weekday: 'short' })}</p>
                             <p className="text-2xl font-bold text-gray-800">{day.getDate()}</p>
@@ -756,9 +771,9 @@ const WeeklyView = ({ currentDate, groupedAppointments, onAppointmentClick }: { 
             </div>
         </div>
     );
-};
+});
 
-const MonthlyView = ({ currentDate, appointmentsByDate, onDateClick }: { currentDate: Date, appointmentsByDate: Record<string, Appointment[]>, onDateClick: (date: Date) => void }) => {
+const MonthlyView = React.memo(({ currentDate, appointmentsByDate, onDateClick }: { currentDate: Date, appointmentsByDate: Record<string, Appointment[]>, onDateClick: (date: Date) => void }) => {
     const month = currentDate.getMonth();
     const year = currentDate.getFullYear();
     const firstDay = new Date(year, month, 1);
@@ -804,7 +819,7 @@ const MonthlyView = ({ currentDate, appointmentsByDate, onDateClick }: { current
             </div>
         </div>
     );
-};
+});
 
 
 export const CalendarApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
@@ -1079,18 +1094,21 @@ export const CalendarApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
                             <button key={v} onClick={() => setView(v)} className={`px-3 py-1 text-sm font-semibold rounded-md transition-colors ${view === v ? 'bg-white shadow' : 'text-gray-600 hover:bg-gray-300'}`}>{v}</button>
                         ))}
                     </div>
+                     {/* FIX: Changed JSX component to function call for WhatsAppIcon */}
                      <button onClick={generateWhatsAppMessage} className="p-2 rounded-full hover:bg-gray-200" title="Share on WhatsApp">
-                        <WhatsAppIcon className="w-6 h-6 text-green-500"/>
+                        {WhatsAppIcon("w-6 h-6 text-green-500")}
                     </button>
                 </div>
                 <div className="flex items-center gap-2 justify-center w-1/3">
-                     <button onClick={() => changeDate(-1)} className="p-2 rounded-full hover:bg-gray-200"><ChevronLeftIcon/></button>
+                     {/* FIX: Changed JSX component to function call for ChevronLeftIcon */}
+                     <button onClick={() => changeDate(-1)} className="p-2 rounded-full hover:bg-gray-200">{ChevronLeftIcon()}</button>
                      <span className="font-bold text-lg w-auto min-w-[280px] text-center text-gray-700">{getHeaderTitle()}</span>
-                     <button onClick={() => changeDate(1)} className="p-2 rounded-full hover:bg-gray-200"><ChevronRightIcon/></button>
+                     {/* FIX: Changed JSX component to function call for ChevronRightIcon */}
+                     <button onClick={() => changeDate(1)} className="p-2 rounded-full hover:bg-gray-200">{ChevronRightIcon()}</button>
                 </div>
                 <div className="w-1/3 flex justify-end">
                     <div className="relative w-64" ref={searchRef}>
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"> <SearchIcon className="text-gray-400" /> </div>
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"> {/* FIX: Changed JSX component to function call for SearchIcon */} {SearchIcon("text-gray-400")} </div>
                         <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onFocus={() => setShowSearchResults(true)} placeholder="Search by student name..." className="w-full pl-10 pr-4 py-2 border rounded-full bg-gray-50 focus:bg-white focus:ring-2"/>
                         {showSearchResults && searchResults.length > 0 && (
                              <div className="absolute top-full mt-2 w-full bg-white border rounded-lg shadow-xl z-10 max-h-80 overflow-y-auto">
@@ -1154,9 +1172,9 @@ const AppointmentModal = ({ onClose, setAppointments, appointments, students, da
         }
         
         const newAppointment: Appointment = { id: Date.now().toString(), ...formData };
+        onClose();
         setAppointments(prev => [...prev, newAppointment]);
         alert("Appointment saved!");
-        onClose();
     };
 
     const handleStudentSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -1479,7 +1497,8 @@ export const ClipCalculatorApp: React.FC<Partial<AppProps>> = () => {
     return (
         <div className="w-full h-full bg-gray-50 text-black flex flex-col items-center p-6 overflow-y-auto">
             <header className="w-full max-w-md text-center">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/8/81/Logo_de_Clip.svg" alt="Clip Logo" className="w-20 h-20 mx-auto mb-4"/>
+                {/* ClipIcon is already a function that takes className string */}
+                {ClipIcon("w-20 h-20 mx-auto mb-4")}
                 <h1 className="text-2xl font-bold text-gray-800">Calculadora de Comisiones</h1>
                 <p className="text-sm text-gray-600 mt-1">Ingresa el precio de tu producto o servicio.</p>
             </header>
@@ -1664,742 +1683,172 @@ export const StudentDatabaseApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) =
 
     return (
         <div className="w-full h-full flex bg-gray-200 text-black">
-            <aside className="w-1/3 flex flex-col bg-gray-50 border-r">
-                <div className="p-2 border-b space-y-2">
-                    <button onClick={handleNewStudent} className="w-full flex items-center justify-center gap-2 bg-green-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600">
-                        <PlusIcon className="w-5 h-5"/> New Student
-                    </button>
-                    <input type="search" placeholder="Search students..." value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} className="w-full p-2 border rounded"/>
+            <aside className="w-1/4 bg-white border-r p-4 flex flex-col">
+                <h3 className="text-xl font-bold mb-4 text-gray-800">Students</h3>
+                <input
+                    type="search"
+                    placeholder="Search students..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full p-2 border rounded-md mb-3 bg-gray-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-400"
+                />
+                <button onClick={handleNewStudent} className="w-full p-2 bg-blue-600 text-white rounded-md mb-4 hover:bg-blue-700 flex items-center justify-center gap-2">
+                    {/* FIX: Changed JSX component to function call for PlusIcon */}
+                    {PlusIcon("w-5 h-5")} Add New Student
+                </button>
+                <div className="flex-grow overflow-y-auto pr-2">
+                    {filteredStudents.length > 0 ? (
+                        <ul className="space-y-1">
+                            {filteredStudents.map(student => (
+                                <li key={student.id}>
+                                    <button onClick={() => setSelectedStudentId(student.id)}
+                                        className={`w-full text-left p-2 rounded-md transition-colors flex flex-col ${selectedStudentId === student.id ? 'bg-blue-100 font-semibold text-blue-800' : 'hover:bg-gray-100 text-gray-700'}`}>
+                                        <span>{student.firstName} {student.paternalLastName}</span>
+                                        <span className="text-xs text-gray-500">{student.mobilePhone}</span>
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="text-center text-gray-500 mt-10">No students found.</p>
+                    )}
                 </div>
-                <nav className="flex-grow overflow-y-auto">
-                    {filteredStudents.map(student => (
-                        <button key={student.id} onClick={() => setSelectedStudentId(student.id)} className={`w-full text-left px-4 py-3 ${selectedStudentId === student.id ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'}`}>
-                            {student.firstName} {student.paternalLastName}
-                        </button>
-                    ))}
-                </nav>
             </aside>
-            <main className="w-2/3 p-4 overflow-y-auto">
+            <main className="flex-grow p-4 overflow-y-auto">
                 {selectedStudentId ? (
-                    <div>
-                        <FormSection title="Solicitud de Inscripción">
-                            <FormInput label="Curso" name="course" value={formData.course} />
-                            <FormInput label="Duración del Curso" name="courseDuration" value={formData.courseDuration} />
-                            <FormInput label="Total de Clases" name="totalClasses" value={formData.totalClasses} />
-                            <FormInput label="Fecha de Inicio" name="startDate" value={formData.startDate} />
-                            <FormInput label="Fin de Curso" name="endDate" value={formData.endDate} />
-                            <FormInput label="Fecha de Inscripción" name="registrationDate" value={formData.registrationDate} />
-                            <FormInput label="Costo de Inscripción" name="registrationCost" value={formData.registrationCost} />
-                            <FormInput label="Costo total del curso" name="totalCost" value={formData.totalCost} />
-                            <FormInput label="Colegiatura Mensual" name="monthlyPayment" value={formData.monthlyPayment} />
-                            <FormInput label="Pago de contado" name="cashPayment" value={formData.cashPayment} />
-                            <FormInput label="Anticipo pago de contado" name="downPayment" value={formData.downPayment} />
-                            <FormInput label="Fecha pago y restante" name="paymentDate" value={formData.paymentDate} />
-                        </FormSection>
-                        <FormSection title="Datos Alumna/o">
-                             <FormInput label="Nombre(s)" name="firstName" value={formData.firstName} required/>
-                             <FormInput label="Apellido Paterno" name="paternalLastName" value={formData.paternalLastName} required/>
-                             <FormInput label="Apellido Materno" name="maternalLastName" value={formData.maternalLastName} />
-                             <FormInput label="Fecha de Nacimiento" name="dob" value={formData.dob} />
-                             <FormInput label="Nacionalidad" name="nationality" value={formData.nationality} />
-                             <FormInput label="Sexo" name="sex" value={formData.sex} />
-                             <FormInput label="Vacuna COVID-19" name="covidVaccine" value={formData.covidVaccine} />
-                             <FormInput label="CURP" name="curp" value={formData.curp} />
-                             <FormInput label="Domicilio (Calle y número)" name="addressStreet" value={formData.addressStreet} />
-                             <FormInput label="Colonia" name="addressColonia" value={formData.addressColonia} />
-                             <FormInput label="Delegación" name="addressDelegacion" value={formData.addressDelegacion} />
-                             <FormInput label="C.P." name="addressCp" value={formData.addressCp} />
-                             <FormInput label="Profesión" name="profession" value={formData.profession} />
-                             <FormInput label="Nivel Máximo de estudios" name="educationLevel" value={formData.educationLevel} />
-                             <FormInput label="Teléfono Particular" name="homePhone" value={formData.homePhone} />
-                             <FormInput label="Móvil Whatsapp" name="mobilePhone" value={formData.mobilePhone} required/>
-                             <FormInput label="Enfermedad o alergias" name="allergies" value={formData.allergies} />
-                        </FormSection>
-                        <FormSection title="Tracking">
-                            <FormSelect label="Payment Status" name="paymentStatus" value={formData.paymentStatus} options={['Pending', 'Partial', 'Paid']} />
-                            <FormSelect label="Diploma Status" name="diplomaStatus" value={formData.diplomaStatus} options={['Not Available', 'Available', 'Issued']} />
-                        </FormSection>
-                        <FormSection title="Datos en Caso de Emergencia">
-                            <FormInput label="Nombre Completo" name="emergencyContactName" value={formData.emergencyContactName} />
-                            <FormInput label="Parentesco" name="emergencyContactRelationship" value={formData.emergencyContactRelationship} />
-                            <FormInput label="Teléfono" name="emergencyContactMobilePhone" value={formData.emergencyContactMobilePhone} />
-                        </FormSection>
-                         <FormSection title="Firma de Alumna/o">
-                             <div className="col-span-full">
-                                 <SignaturePad ref={signatureCanvasRef} width={500} height={200} onEnd={(sig) => setFormData(f => ({...f, signature: sig}))} initialData={formData.signature}/>
-                                 <button onClick={handleClearSignature} className="mt-2 px-3 py-1 bg-gray-300 rounded text-black">Clear</button>
-                             </div>
-                        </FormSection>
-                        <button onClick={handleSave} className="mt-6 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded hover:bg-blue-700">Save Student</button>
-                    </div>
-                ) : <div className="text-center text-gray-500 mt-20">Select a student or create a new one.</div>}
+                    <>
+                        <h3 className="text-2xl font-bold text-gray-800 mb-4">{selectedStudentId === 'new' ? 'New Student' : 'Edit Student'}</h3>
+                        <form className="bg-white p-6 rounded-lg shadow-md">
+                            <FormSection title="Personal Information">
+                                <FormInput label="First Name" name="firstName" value={formData.firstName} required/>
+                                <FormInput label="Paternal Last Name" name="paternalLastName" value={formData.paternalLastName} required/>
+                                <FormInput label="Maternal Last Name" name="maternalLastName" value={formData.maternalLastName}/>
+                                <FormInput label="Date of Birth" name="dob" value={formData.dob}/>
+                                <FormInput label="Nationality" name="nationality" value={formData.nationality}/>
+                                <FormSelect label="Sex" name="sex" value={formData.sex} options={['Male', 'Female', 'Other']}/>
+                                <FormSelect label="COVID Vaccine" name="covidVaccine" value={formData.covidVaccine} options={['Yes', 'No', 'Unknown']}/>
+                                <FormInput label="CURP" name="curp" value={formData.curp}/>
+                            </FormSection>
+                            <FormSection title="Contact & Professional">
+                                <FormInput label="Mobile Phone" name="mobilePhone" value={formData.mobilePhone} required/>
+                                <FormInput label="Home Phone" name="homePhone" value={formData.homePhone}/>
+                                <FormInput label="Profession" name="profession" value={formData.profession}/>
+                                <FormInput label="Education Level" name="educationLevel" value={formData.educationLevel}/>
+                                <FormInput label="Allergies" name="allergies" value={formData.allergies}/>
+                            </FormSection>
+                            <FormSection title="Address">
+                                <FormInput label="Street" name="addressStreet" value={formData.addressStreet}/>
+                                <FormInput label="Colonia" name="addressColonia" value={formData.addressColonia}/>
+                                <FormInput label="Delegacion" name="addressDelegacion" value={formData.addressDelegacion}/>
+                                <FormInput label="Postal Code" name="addressCp" value={formData.addressCp}/>
+                            </FormSection>
+                            <FormSection title="Course Information">
+                                <FormInput label="Course Name" name="course" value={formData.course}/>
+                                <FormInput label="Course Duration" name="courseDuration" value={formData.courseDuration}/>
+                                <FormInput label="Total Classes" name="totalClasses" value={formData.totalClasses}/>
+                                <FormInput label="Start Date" name="startDate" value={formData.startDate}/>
+                                <FormInput label="End Date" name="endDate" value={formData.endDate}/>
+                                <FormInput label="Registration Date" name="registrationDate" value={formData.registrationDate}/>
+                                <FormInput label="Registration Cost" name="registrationCost" value={formData.registrationCost}/>
+                                <FormInput label="Total Cost" name="totalCost" value={formData.totalCost}/>
+                                <FormInput label="Monthly Payment" name="monthlyPayment" value={formData.monthlyPayment}/>
+                                <FormInput label="Cash Payment" name="cashPayment" value={formData.cashPayment}/>
+                                <FormInput label="Down Payment" name="downPayment" value={formData.downPayment}/>
+                                <FormInput label="Payment Date" name="paymentDate" value={formData.paymentDate}/>
+                                <FormSelect label="Payment Status" name="paymentStatus" value={formData.paymentStatus} options={['Paid', 'Pending', 'Partial']}/>
+                                <FormSelect label="Diploma Status" name="diplomaStatus" value={formData.diplomaStatus} options={['Available', 'Issued', 'Not Available']}/>
+                            </FormSection>
+                            <FormSection title="Emergency Contact">
+                                <FormInput label="Name" name="emergencyContactName" value={formData.emergencyContactName}/>
+                                <FormInput label="Paternal Last Name" name="emergencyContactPaternalLastName" value={formData.emergencyContactPaternalLastName}/>
+                                <FormInput label="Maternal Last Name" name="emergencyContactMaternalLastName" value={formData.emergencyContactMaternalLastName}/>
+                                <FormInput label="Date of Birth" name="emergencyContactDob" value={formData.emergencyContactDob}/>
+                                <FormInput label="Nationality" name="emergencyContactNationality" value={formData.emergencyContactNationality}/>
+                                <FormSelect label="Sex" name="emergencyContactSex" value={formData.emergencyContactSex} options={['Male', 'Female', 'Other']}/>
+                                <FormInput label="Relationship" name="emergencyContactRelationship" value={formData.emergencyContactRelationship}/>
+                                <FormInput label="Street" name="emergencyContactAddressStreet" value={formData.emergencyContactAddressStreet}/>
+                                <FormInput label="Colonia" name="emergencyContactAddressColonia" value={formData.emergencyContactAddressColonia}/>
+                                <FormInput label="Delegacion" name="emergencyContactAddressDelegacion" value={formData.emergencyContactAddressDelegacion}/>
+                                <FormInput label="Postal Code" name="emergencyContactAddressCp" value={formData.emergencyContactAddressCp}/>
+                                <FormInput label="Home Phone" name="emergencyContactHomePhone" value={formData.emergencyContactHomePhone}/>
+                                <FormInput label="Mobile Phone" name="emergencyContactMobilePhone" value={formData.emergencyContactMobilePhone}/>
+                            </FormSection>
+                            <FormSection title="Guardian Information (if minor)">
+                                <FormInput label="Name" name="guardianName" value={formData.guardianName}/>
+                                <FormInput label="Paternal Last Name" name="guardianPaternalLastName" value={formData.guardianPaternalLastName}/>
+                                <FormInput label="Maternal Last Name" name="guardianMaternalLastName" value={formData.guardianMaternalLastName}/>
+                                <FormInput label="Date of Birth" name="guardianDob" value={formData.guardianDob}/>
+                                <FormInput label="Nationality" name="guardianNationality" value={formData.guardianNationality}/>
+                                <FormSelect label="Sex" name="guardianSex" value={formData.guardianSex} options={['Male', 'Female', 'Other']}/>
+                                <FormInput label="Street" name="guardianAddressStreet" value={formData.guardianAddressStreet}/>
+                                <FormInput label="Colonia" name="guardianAddressColonia" value={formData.guardianAddressColonia}/>
+                                <FormInput label="Delegacion" name="guardianAddressDelegacion" value={formData.guardianAddressDelegacion}/>
+                                <FormInput label="Home Phone" name="guardianHomePhone" value={formData.guardianHomePhone}/>
+                                <FormInput label="Mobile Phone" name="guardianMobilePhone" value={formData.guardianMobilePhone}/>
+                            </FormSection>
+
+                            <FormSection title="Student Signature">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Signature</label>
+                                    <SignaturePad 
+                                        ref={signatureCanvasRef} 
+                                        width={400} 
+                                        height={100} 
+                                        initialData={formData.signature}
+                                        onEnd={(dataUrl) => setFormData(f => ({...f, signature: dataUrl}))} 
+                                    />
+                                    <button type="button" onClick={handleClearSignature} className="mt-2 px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600">Clear Signature</button>
+                                </div>
+                            </FormSection>
+                            
+                            <div className="flex justify-end gap-2 mt-6">
+                                <button type="button" onClick={() => setSelectedStudentId(null)} className="px-4 py-2 bg-gray-200 rounded">Cancel</button>
+                                <button type="button" onClick={handleSave} className="px-4 py-2 bg-blue-600 text-white rounded">Save Student</button>
+                            </div>
+                        </form>
+                    </>
+                ) : (
+                    <p className="text-center text-gray-500 py-10">Select a student from the left panel or add a new one.</p>
+                )}
             </main>
         </div>
-    )
+    );
 };
 
-// --- Student Check-in App ---
-export const CheckInApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
-    const [students, setStudents] = useState<Student[]>([]);
-    const [appointments, setAppointments] = useState<Appointment[]>([]);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [foundStudent, setFoundStudent] = useState<Student | null>(null);
-    const [foundAppointment, setFoundAppointment] = useState<Appointment | null>(null);
-    const [signature, setSignature] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [searchError, setSearchError] = useState<string | null>(null);
-    const [view, setView] = useState<'search' | 'sign' | 'confirmed'>('search');
-    const [lastCheckIn, setLastCheckIn] = useState<CheckInLog | null>(null);
-    const [lastCheckInStudent, setLastCheckInStudent] = useState<Student | null>(null);
-    const [lastCheckInAppointment, setLastCheckInAppointment] = useState<Appointment | null>(null);
-    const [confirmationSlipUrl, setConfirmationSlipUrl] = useState<string | null>(null);
-    const signatureCanvasRef = useRef<HTMLCanvasElement>(null);
-
-    useEffect(() => {
-        if (!fs) return;
-        const dir = findNodeByPath(fs, APPOINTMENTS_FILE_PATH);
-        const studentsFile = dir?.children.find(f => f.name === STUDENTS_FILE_NAME && f.type === 'file') as FileNode | undefined;
-        if (studentsFile) {
-            try { setStudents(JSON.parse(studentsFile.content)); } 
-            catch { console.error("Failed to parse students file"); }
-        }
-        const appointmentsFile = dir?.children.find(f => f.name === APPOINTMENTS_FILE_NAME && f.type === 'file') as FileNode | undefined;
-        if (appointmentsFile) {
-            try { setAppointments(JSON.parse(appointmentsFile.content)); }
-            catch { console.error("Failed to parse appointments file"); }
-        }
-    }, [fs]);
-
-    const generateConfirmationCanvas = useCallback(async (student: Student, log: CheckInLog, appointment: Appointment | null): Promise<HTMLCanvasElement> => {
-        return new Promise((resolve, reject) => {
-            const canvas = document.createElement('canvas');
-            canvas.width = 500;
-            canvas.height = 400;
-            const ctx = canvas.getContext('2d');
-            if (!ctx) {
-                reject(new Error("Could not get canvas context"));
-                return;
-            }
-
-            ctx.fillStyle = 'white';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            const logoImg = new Image();
-            const sigImg = new Image();
-            const qrImg = new Image();
-            qrImg.crossOrigin = 'Anonymous';
-
-            let imagesLoaded = 0;
-            const totalImages = 3;
-
-            const drawCanvas = () => {
-                if (imagesLoaded !== totalImages) return;
-
-                // Header
-                ctx.drawImage(logoImg, 20, 20, 80, 80);
-                ctx.fillStyle = 'black';
-                ctx.font = 'bold 24px sans-serif';
-                ctx.textAlign = 'right';
-                ctx.fillText('Check-in Confirmation', 480, 55);
-
-                // Student Info (Left column)
-                ctx.textAlign = 'left';
-                ctx.font = 'bold 18px sans-serif';
-                ctx.fillText(`${student.firstName} ${student.paternalLastName}`, 20, 140);
-                ctx.font = '14px sans-serif';
-                ctx.fillStyle = '#555';
-                ctx.fillText(`ID: ${student.id}`, 20, 165);
-                ctx.fillText(`Checked in: ${new Date(log.checkInTime).toLocaleString()}`, 20, 185);
-
-                // Appointment Info (Right column)
-                if (appointment) {
-                    ctx.font = 'bold 14px sans-serif';
-                    ctx.fillStyle = 'black';
-                    ctx.fillText('Appointment Details', 280, 140);
-                    ctx.font = '14px sans-serif';
-                    ctx.fillStyle = '#555';
-                    ctx.fillText(`Course: ${appointment.details}`, 280, 165);
-                    ctx.fillText(`Location: ${appointment.location}`, 280, 185);
-                    ctx.fillText(`Time: ${appointment.time}`, 280, 205);
-                    ctx.fillText(`Teacher: ${appointment.teacher}`, 280, 225);
-                }
-
-                // Signature & QR Code (Bottom)
-                ctx.font = '14px sans-serif';
-                ctx.fillStyle = '#555';
-                ctx.fillText('Signature:', 20, 270);
-                ctx.drawImage(sigImg, 20, 280, 200, 50);
-
-                ctx.drawImage(qrImg, 380, 280, 100, 100);
-
-                // Border
-                ctx.strokeStyle = '#eee';
-                ctx.strokeRect(0, 0, canvas.width, canvas.height);
-
-                resolve(canvas);
-            };
-            
-            const onImageLoad = () => {
-                imagesLoaded++;
-                drawCanvas();
-            };
-            
-            logoImg.onload = onImageLoad;
-            sigImg.onload = onImageLoad;
-            qrImg.onload = onImageLoad;
-            
-            logoImg.onerror = () => reject(new Error("Failed to load logo"));
-            sigImg.onerror = () => reject(new Error("Failed to load signature"));
-            qrImg.onerror = () => reject(new Error("Failed to load QR code"));
-
-            logoImg.src = MAXFRA_LOGO_B64;
-            sigImg.src = log.signature;
-            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(student.id)}&size=100x100&bgcolor=ffffff&qzone=1`;
-        });
-    }, []);
-
-    useEffect(() => {
-        if (view === 'confirmed' && lastCheckInStudent && lastCheckIn) {
-            let isMounted = true;
-            setConfirmationSlipUrl(null); // Reset previous slip
-            
-            generateConfirmationCanvas(lastCheckInStudent, lastCheckIn, lastCheckInAppointment)
-                .then(canvas => {
-                    if (isMounted) {
-                        setConfirmationSlipUrl(canvas.toDataURL('image/jpeg'));
-                    }
-                })
-                .catch(err => {
-                    console.error("Failed to generate confirmation slip:", err);
-                    // Optionally set an error state here
-                });
-    
-            return () => { isMounted = false; };
-        }
-    }, [view, lastCheckIn, lastCheckInStudent, lastCheckInAppointment, generateConfirmationCanvas]);
-    
-
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
-        setSearchError(null);
-        const query = searchQuery.trim();
-        if (!query) {
-            setSearchError("Please enter a name, ID, or phone number to search.");
-            return;
-        }
-
-        const normalize = (str: string) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        const normalizedQuery = normalize(query);
-        const cleanPhoneQuery = query.replace(/[\s-()]/g, '');
-
-        const result = students.find(s => {
-            if (s.id.toLowerCase() === query.toLowerCase()) return true;
-            if (s.mobilePhone && s.mobilePhone.replace(/[\s-()]/g, '') === cleanPhoneQuery) return true;
-            const fullName = `${s.firstName} ${s.paternalLastName} ${s.maternalLastName || ''}`;
-            if (normalize(fullName).includes(normalizedQuery)) return true;
-            return false;
-        });
-        
-        if (result) {
-            const todayKey = new Date().toISOString().slice(0, 10);
-            const studentAppointmentsToday = appointments
-                .filter(app => app.studentId === result.id && app.date === todayKey)
-                .sort((a, b) => a.time.localeCompare(b.time));
-
-            if (studentAppointmentsToday.length > 0) {
-                setFoundStudent(result);
-                setFoundAppointment(studentAppointmentsToday[0]); // Taking the first appointment of the day
-                setView('sign');
-            } else {
-                setFoundStudent(null);
-                setFoundAppointment(null);
-                setSearchError(`Student "${result.firstName} ${result.paternalLastName}" found, but has no appointments scheduled for today.`);
-            }
-        } else {
-            setFoundStudent(null);
-            setSearchError(`Student not found for "${searchQuery}".`);
-        }
-        setSignature(null);
-    };
-    
-    const handleConfirmCheckIn = () => {
-        if (!foundStudent || !signature || !setFs) return;
-        
-        setIsLoading(true);
-        const newLogEntry: CheckInLog = {
-            id: `checkin-${Date.now()}`,
-            studentId: foundStudent.id,
-            checkInTime: new Date().toISOString(),
-            signature: signature,
-            appointmentId: foundAppointment?.id,
-        };
-
-        setFs(currentFs => {
-            const dir = findNodeByPath(currentFs, APPOINTMENTS_FILE_PATH);
-            const logFile = dir?.children.find(f => f.name === CHECK_IN_LOG_FILE_NAME && f.type === 'file') as FileNode | undefined;
-            let currentLog: CheckInLog[] = [];
-
-            if (logFile?.content) {
-                try {
-                    const parsed = JSON.parse(logFile.content);
-                    if (Array.isArray(parsed)) currentLog = parsed;
-                } catch (e) {
-                    console.error("Failed to parse existing check-in log during save.", e);
-                }
-            }
-            
-            const updatedLog = [...currentLog, newLogEntry];
-            return saveFileToFS(currentFs, APPOINTMENTS_FILE_PATH, CHECK_IN_LOG_FILE_NAME, JSON.stringify(updatedLog, null, 2));
-        });
-
-        setLastCheckIn(newLogEntry);
-        setLastCheckInStudent(foundStudent);
-        setLastCheckInAppointment(foundAppointment);
-        setView('confirmed');
-        setIsLoading(false);
-    };
-    
-    const handleReset = () => {
-        setSearchQuery('');
-        setFoundStudent(null);
-        setFoundAppointment(null);
-        setSignature(null);
-        setSearchError(null);
-        setLastCheckIn(null);
-        setLastCheckInStudent(null);
-        setLastCheckInAppointment(null);
-        setConfirmationSlipUrl(null);
-        setView('search');
-    };
-    
-    const handleGenerateJpg = () => {
-        if (!confirmationSlipUrl || !lastCheckInStudent) return;
-        const link = document.createElement('a');
-        link.download = `check-in-${lastCheckInStudent.id}.jpg`;
-        link.href = confirmationSlipUrl;
-        link.click();
-    };
-    
-    const handleGeneratePdf = () => {
-        if (!confirmationSlipUrl) return;
-        const printWindow = window.open('', '_blank');
-        if (printWindow) {
-            printWindow.document.write(`<html><head><title>Check-in Confirmation</title></head><body style="margin: 0;"><img src="${confirmationSlipUrl}" style="max-width: 100%;"></body></html>`);
-            printWindow.document.close();
-            printWindow.focus();
-            printWindow.print();
-        }
-    };
-    
-    const handleShareWhatsApp = async () => {
-        if (!lastCheckInStudent || !lastCheckIn || !confirmationSlipUrl) return;
-        const message = `Check-in confirmation for ${lastCheckInStudent.firstName} ${lastCheckInStudent.paternalLastName} at ${new Date(lastCheckIn.checkInTime).toLocaleTimeString()}.`;
-        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message + "\n\n(Please download and attach the JPG confirmation slip.)")}`;
-        
-        if (navigator.share) {
-             try {
-                const response = await fetch(confirmationSlipUrl);
-                const blob = await response.blob();
-                const file = new File([blob], 'check-in.jpg', { type: 'image/jpeg' });
-                await navigator.share({
-                    files: [file],
-                    text: message,
-                    title: 'Check-in Confirmation',
-                });
-            } catch (error) {
-                console.error('Error sharing:', error);
-                // Fallback for when sharing fails (e.g., user cancels)
-                window.open(whatsappUrl, '_blank');
-            }
-        } else {
-            window.open(whatsappUrl, '_blank');
-        }
-    };
-
-
-    const handleClearSignature = () => {
-        const canvas = signatureCanvasRef.current;
-        if(canvas) {
-            const ctx = canvas.getContext('2d');
-            ctx?.clearRect(0, 0, canvas.width, canvas.height);
-            setSignature(null);
-        }
-    };
-
-    const renderContent = () => {
-        switch (view) {
-            case 'search':
-                return (
-                    <form onSubmit={handleSearch}>
-                        <div className="relative">
-                            <input 
-                                type="text"
-                                value={searchQuery}
-                                onChange={e => {
-                                    setSearchQuery(e.target.value);
-                                    if (searchError) setSearchError(null);
-                                }}
-                                placeholder="Scan QR, or enter ID, Name/Phone..."
-                                className={`w-full text-lg p-4 pr-12 border-2 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-colors ${searchError ? 'border-red-500' : 'border-gray-300'}`}
-                                autoFocus
-                            />
-                            <button type="submit" className="absolute inset-y-0 right-0 px-4 text-gray-500 hover:text-blue-600">
-                                <SearchIcon className="w-6 h-6" />
-                            </button>
-                        </div>
-                        {searchError && <p className="text-red-500 text-sm mt-2 text-center">{searchError}</p>}
-                    </form>
-                );
-            case 'sign':
-                if (!foundStudent) return null;
-                return (
-                    <div className="animate-fade-in">
-                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-6">
-                            <h3 className="font-bold text-xl text-blue-800">{foundStudent.firstName} {foundStudent.paternalLastName}</h3>
-                            {foundAppointment && (
-                                <div className="text-sm text-gray-700 mt-2">
-                                    <p><strong>Course:</strong> {foundAppointment.details}</p>
-                                    <p><strong>Time:</strong> {foundAppointment.time} with {foundAppointment.teacher}</p>
-                                </div>
-                            )}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Please Sign Below to Confirm Check-in</label>
-                            <SignaturePad ref={signatureCanvasRef} width={380} height={150} onEnd={setSignature} />
-                            <button onClick={handleClearSignature} className="mt-2 text-xs text-gray-500 hover:underline">Clear Signature</button>
-                        </div>
-                        <div className="mt-6 flex flex-col gap-2">
-                             <button 
-                                onClick={handleConfirmCheckIn} 
-                                disabled={!signature || isLoading}
-                                className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
-                            >
-                               {isLoading ? 'Saving...' : 'Confirm Check-in'}
-                            </button>
-                            <button onClick={handleReset} className="w-full bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300">
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-                );
-            case 'confirmed':
-                 if (!lastCheckInStudent || !lastCheckIn) return null;
-                 return (
-                    <div className="animate-fade-in text-center">
-                        <div className="p-4 bg-green-50 border border-green-200 rounded-lg mb-4">
-                            <h3 className="font-bold text-xl text-green-800">{lastCheckInStudent.firstName} {lastCheckInStudent.paternalLastName}</h3>
-                            <p className="text-gray-600">Checked-in successfully!</p>
-                            <p className="text-xs text-gray-500">{new Date(lastCheckIn.checkInTime).toLocaleString()}</p>
-                        </div>
-
-                        <div className="my-4 border rounded-lg p-2 bg-gray-50">
-                            <p className="text-sm font-semibold text-gray-700 mb-2">Confirmation Slip Preview</p>
-                            {confirmationSlipUrl ? (
-                                <img src={confirmationSlipUrl} alt="Confirmation Slip" className="w-full h-auto rounded border" />
-                            ) : (
-                                <div className="w-full h-48 bg-gray-200 flex items-center justify-center rounded animate-pulse">
-                                    <p className="text-gray-500">Generating preview...</p>
-                                </div>
-                            )}
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-3 mb-3">
-                            <button onClick={handleGenerateJpg} disabled={!confirmationSlipUrl} className="px-4 py-2 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed">Download JPG</button>
-                            <button onClick={handleGeneratePdf} disabled={!confirmationSlipUrl} className="px-4 py-2 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed">Save as PDF</button>
-                        </div>
-                        <button onClick={handleShareWhatsApp} disabled={!confirmationSlipUrl} className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition mb-6 disabled:opacity-50 disabled:cursor-not-allowed">
-                           <WhatsAppIcon className="w-5 h-5" /> Share on WhatsApp
-                        </button>
-                        <button onClick={handleReset} className="w-full bg-blue-100 text-blue-800 font-semibold py-2 px-4 rounded-lg hover:bg-blue-200 transition">
-                            Start New Check-in
-                        </button>
-                    </div>
-                 );
-        }
-    };
-
+// FIX: Added placeholder components for MaxfraOfficeSuiteApp, MaxfraLibraryApp, and ImageViewerApp
+// These components are referenced in constants.tsx but not defined in apps/index.tsx.
+export const MaxfraOfficeSuiteApp: React.FC<Partial<AppProps>> = ({ file }) => {
     return (
-        <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-black p-8">
-            <div className="w-full max-w-md bg-white rounded-xl shadow-2xl p-8">
-                <div className="text-center mb-6">
-                    {CheckInIcon("w-16 h-16 mx-auto text-blue-600")}
-                    <h1 className="text-3xl font-bold mt-2">Student Check-in</h1>
-                    {view === 'search' && <p className="text-gray-500">Search for a student by ID, name, or phone number.</p>}
-                </div>
-                {renderContent()}
-            </div>
+        <div className="w-full h-full p-4 bg-white text-black flex flex-col items-center justify-center">
+            <h1 className="text-xl font-bold">Maxfra Office Suite</h1>
+            <p className="text-gray-600 mt-2">Opened with {file?.name || 'no file'}. Sub-app: {file?.subApp || 'N/A'}</p>
+            <p className="mt-4">This is a placeholder for the office suite application.</p>
         </div>
     );
 };
 
-
-// --- Maxfra Office Suite ---
-
-const useDocumentExecCommand = (editorRef: React.RefObject<HTMLElement>) => {
-    const apply = useCallback((command: string, value?: string) => {
-        document.execCommand(command, false, value);
-        editorRef.current?.focus();
-    }, [editorRef]);
-    return apply;
-};
-
-const WordComponent: React.FC<Partial<AppProps>> = ({ file, setFs }) => {
-    const editorRef = useRef<HTMLDivElement>(null);
-    const [currentFile, setCurrentFile] = useState(file);
-    const applyFormat = useDocumentExecCommand(editorRef);
-    const [showSaveModal, setShowSaveModal] = useState(false);
-
-    const handleSave = (asNew = false) => {
-        if (!currentFile || asNew) {
-            setShowSaveModal(true);
-        } else if (setFs && editorRef.current) {
-            setFs(fs => saveFileToFS(fs, [], currentFile.name, editorRef.current!.innerHTML));
-            alert("File saved!");
-        }
-    };
-
-    const handleSaveFromModal = (fileName: string) => {
-        if (setFs && editorRef.current) {
-            const finalName = fileName.endsWith('.doc') ? fileName : `${fileName}.doc`;
-            setFs(fs => saveFileToFS(fs, [], finalName, editorRef.current!.innerHTML));
-            setCurrentFile({ name: finalName, content: editorRef.current!.innerHTML });
-            setShowSaveModal(false);
-            alert(`File saved as ${finalName}`);
-        }
-    };
-
-    const handlePrint = () => {
-        if (editorRef.current) {
-            const printWindow = window.open('', '_blank');
-            printWindow?.document.write(`<html><head><title>${currentFile?.name || 'Document'}</title></head><body>${editorRef.current.innerHTML}</body></html>`);
-            printWindow?.document.close();
-            printWindow?.print();
-            printWindow?.close();
-        }
-    };
-
-    const SaveModal = () => {
-        const [name, setName] = useState(currentFile?.name || 'Untitled.doc');
-        return (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50">
-                <div className="bg-white p-4 rounded text-black">
-                    <h3 className="font-bold mb-2">Save Document</h3>
-                    <input type="text" value={name} onChange={e => setName(e.target.value)} className="w-full p-1 border border-gray-400 rounded" />
-                    <div className="flex justify-end gap-2 mt-4">
-                        <button onClick={() => setShowSaveModal(false)} className="px-3 py-1 bg-gray-200 rounded">Cancel</button>
-                        <button onClick={() => handleSaveFromModal(name)} className="px-3 py-1 bg-blue-500 text-white rounded">Save</button>
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
-    return (
-        <div className="w-full h-full flex flex-col bg-gray-100 text-black">
-            {showSaveModal && <SaveModal />}
-            <div className="flex-shrink-0 p-1 bg-gray-200 flex items-center gap-2 border-b border-gray-300 flex-wrap">
-                <div className="flex items-center gap-1">
-                    <button onClick={() => handleSave()} className="p-2 rounded hover:bg-gray-300">Save</button>
-                    <button onClick={() => handleSave(true)} className="p-2 rounded hover:bg-gray-300">Save As</button>
-                    <button onClick={handlePrint} className="p-2 rounded hover:bg-gray-300">Print/PDF</button>
-                </div>
-                <div className="w-px h-5 bg-gray-400"></div>
-                <div className="flex items-center gap-1">
-                    <select onChange={e => applyFormat('fontName', e.target.value)} className="p-1 border-gray-300 rounded"><option>Arial</option><option>Verdana</option><option>Times New Roman</option></select>
-                    <select onChange={e => applyFormat('fontSize', e.target.value)} className="p-1 border-gray-300 rounded">{[1,2,3,4,5,6,7].map(s => <option key={s} value={s}>{s*2+10}pt</option>)}</select>
-                </div>
-                <div className="w-px h-5 bg-gray-400"></div>
-                 <div className="flex items-center gap-1">
-                    <button onClick={() => applyFormat('bold')} className="p-2 rounded hover:bg-gray-300 font-bold">B</button>
-                    <button onClick={() => applyFormat('italic')} className="p-2 rounded hover:bg-gray-300 italic">I</button>
-                    <button onClick={() => applyFormat('underline')} className="p-2 rounded hover:bg-gray-300 underline">U</button>
-                    <input type="color" onChange={e => applyFormat('foreColor', e.target.value)} className="w-6 h-6" title="Text Color"/>
-                    <input type="color" onChange={e => applyFormat('hiliteColor', e.target.value)} className="w-6 h-6" title="Highlight Color"/>
-                </div>
-                <div className="w-px h-5 bg-gray-400"></div>
-                 <div className="flex items-center gap-1">
-                    <button onClick={() => applyFormat('justifyLeft')} className="p-2 rounded hover:bg-gray-300">L</button>
-                    <button onClick={() => applyFormat('justifyCenter')} className="p-2 rounded hover:bg-gray-300">C</button>
-                    <button onClick={() => applyFormat('justifyRight')} className="p-2 rounded hover:bg-gray-300">R</button>
-                    <button onClick={() => applyFormat('insertUnorderedList')} className="p-2 rounded hover:bg-gray-300">UL</button>
-                    <button onClick={() => applyFormat('insertOrderedList')} className="p-2 rounded hover:bg-gray-300">OL</button>
-                </div>
-            </div>
-            <div ref={editorRef} contentEditable dangerouslySetInnerHTML={{ __html: file?.content || '' }} className="flex-grow p-8 bg-white overflow-y-auto focus:outline-none" />
-        </div>
-    );
-};
-
-type CellData = { value: string; style?: React.CSSProperties };
-const ExcelComponent: React.FC<Partial<AppProps>> = ({ file, setFs }) => {
-    const [grid, setGrid] = useState<CellData[][]>(() => {
-        if (file?.content) {
-            try { return JSON.parse(file.content); } catch { /* fallthrough */ }
-        }
-        return Array.from({ length: 100 }, () => Array(26).fill({ value: '' }));
-    });
-    const [selectedCell, setSelectedCell] = useState({ row: 0, col: 0 });
-    const [currentFile, setCurrentFile] = useState(file);
-
-    const handleCellChange = (row: number, col: number, value: string) => {
-        const newGrid = grid.map(r => [...r]);
-        newGrid[row][col] = { ...newGrid[row][col], value };
-        setGrid(newGrid);
-    };
-    
-    const applyStyle = (style: React.CSSProperties) => {
-        const { row, col } = selectedCell;
-        const newGrid = grid.map(r => [...r]);
-        const currentStyle = newGrid[row][col].style || {};
-        newGrid[row][col] = { ...newGrid[row][col], style: { ...currentStyle, ...style } };
-        setGrid(newGrid);
-    };
-
-    const handleSave = () => {
-        let fileName = currentFile?.name;
-        if (!fileName) fileName = prompt("Save as:", "spreadsheet.xls") || undefined;
-        if (!fileName || !setFs) return;
-        
-        const finalName = fileName.endsWith('.xls') ? fileName : `${fileName}.xls`;
-        setFs(fs => saveFileToFS(fs, [], finalName, JSON.stringify(grid)));
-        setCurrentFile({ name: finalName, content: JSON.stringify(grid) });
-        alert("Spreadsheet saved!");
-    };
-    
-    return (
-        <div className="w-full h-full flex flex-col bg-gray-100 text-black text-sm">
-            <div className="flex-shrink-0 p-1 bg-gray-200 flex items-center gap-2 border-b border-gray-300">
-                <button onClick={handleSave} className="p-2 rounded hover:bg-gray-300">Save</button>
-                <div className="w-px h-5 bg-gray-400"></div>
-                <button onClick={() => applyStyle({ fontWeight: grid[selectedCell.row][selectedCell.col].style?.fontWeight === 'bold' ? 'normal' : 'bold' })} className="font-bold p-2 rounded hover:bg-gray-300">B</button>
-                <button onClick={() => applyStyle({ fontStyle: grid[selectedCell.row][selectedCell.col].style?.fontStyle === 'italic' ? 'normal' : 'italic' })} className="italic p-2 rounded hover:bg-gray-300">I</button>
-                <input type="color" onChange={e => applyStyle({ color: e.target.value })} title="Text Color" />
-                <input type="color" onChange={e => applyStyle({ backgroundColor: e.target.value })} title="Cell Color" />
-            </div>
-            <div className="flex-grow overflow-auto">
-                <table>
-                    <thead><tr><th></th>{Array.from({length: 26}, (_, i) => <th key={i}>{String.fromCharCode(65+i)}</th>)}</tr></thead>
-                    <tbody>
-                        {grid.map((row, r) => <tr key={r}><th>{r+1}</th>{row.map((cell, c) => <td key={c}><input type="text" value={cell.value} style={cell.style} onFocus={() => setSelectedCell({row: r, col: c})} onChange={e => handleCellChange(r, c, e.target.value)} className={`w-full h-full px-1.5 py-1 box-border focus:outline-none ${selectedCell.row === r && selectedCell.col === c ? 'ring-2 ring-green-600' : ''}`} /></td>)}</tr>)}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    );
-};
-
-const OutlookComponent: React.FC<Partial<AppProps>> = () => {
-    const mockEmails = [{ id: 1, from: 'Patrick Blanks', subject: 'Welcome to Maxfra Office', body: 'This is the new Outlook clone.', date: '9:30 AM', read: false }];
-    const [selectedEmail, setSelectedEmail] = useState(mockEmails[0]);
-    return (
-        <div className="w-full h-full flex bg-white text-black">
-            <div className="w-56 bg-gray-100 p-2 border-r"><h2 className="text-lg font-bold p-2">Mail</h2></div>
-            <div className="w-96 border-r">{mockEmails.map(email => <button key={email.id} onClick={() => setSelectedEmail(email)} className="w-full text-left p-3 border-b">{email.subject}</button>)}</div>
-            <div className="flex-grow p-6">{selectedEmail ? <div><h1 className="text-2xl font-bold">{selectedEmail.subject}</h1><p>{selectedEmail.body}</p></div>: 'Select an item'}</div>
-        </div>
-    );
-};
-
-export const MaxfraOfficeSuiteApp: React.FC<Partial<AppProps>> = (props) => {
-    type OfficeApp = 'word' | 'excel' | 'outlook';
-    const [activeApp, setActiveApp] = useState<OfficeApp>('word');
-
-    useEffect(() => {
-        if (props.file?.subApp) {
-            setActiveApp(props.file.subApp);
-        }
-    }, [props.file]);
-
-    const renderActiveAppComponent = () => {
-        switch (activeApp) {
-            case 'word': return <WordComponent {...props} />;
-            case 'excel': return <ExcelComponent {...props} />;
-            case 'outlook': return <OutlookComponent {...props} />;
-            default: return null;
-        }
-    };
-    
-    return (
-        <div className="w-full h-full flex bg-gray-800 text-white">
-            <div className="w-16 bg-gray-900 flex flex-col items-center py-4">
-                 <button onClick={() => setActiveApp('word')} className={`p-3 rounded-lg mb-4 ${activeApp === 'word' ? 'bg-blue-600' : 'hover:bg-gray-700'}`} title="Word">
-                    <MaxfraWordIcon className="w-6 h-6" />
-                </button>
-                 <button onClick={() => setActiveApp('excel')} className={`p-3 rounded-lg mb-4 ${activeApp === 'excel' ? 'bg-green-700' : 'hover:bg-gray-700'}`} title="Excel">
-                    <MaxfraExcelIcon className="w-6 h-6" />
-                </button>
-                 <button onClick={() => setActiveApp('outlook')} className={`p-3 rounded-lg ${activeApp === 'outlook' ? 'bg-sky-600' : 'hover:bg-gray-700'}`} title="Outlook">
-                    <MaxfraOutlookIcon className="w-6 h-6" />
-                </button>
-            </div>
-            <div className="flex-grow">
-                {renderActiveAppComponent()}
-            </div>
-        </div>
-    );
-};
-
-// --- Maxfra Library App ---
 export const MaxfraLibraryApp: React.FC<Partial<AppProps>> = () => {
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
-
-    const ImageModal = ({ src, onClose }: { src: string, onClose: () => void }) => (
-        <div 
-            className="absolute inset-0 bg-black/80 flex items-center justify-center z-50 animate-fade-in"
-            onClick={onClose}
-        >
-            <div className="relative max-w-[90vw] max-h-[90vh]">
-                 <img 
-                    src={src} 
-                    alt="Enlarged view" 
-                    className="max-w-full max-h-full object-contain"
-                    onClick={(e) => e.stopPropagation()} // Prevent closing modal when clicking on the image
-                />
-                <button 
-                    onClick={onClose}
-                    className="absolute -top-4 -right-4 bg-white rounded-full p-2 text-black hover:bg-gray-300"
-                    aria-label="Close image view"
-                >
-                    <CloseIcon className="w-5 h-5" />
-                </button>
-            </div>
-        </div>
-    );
-
     return (
-        <div className="w-full h-full bg-gray-100 text-black p-6 overflow-y-auto">
-            <h1 className="text-3xl font-bold mb-6 text-gray-800 border-b pb-2">Maxfra Resource Library</h1>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {LIBRARY_IMAGES.map((image, index) => (
-                    <div 
-                        key={index} 
-                        className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer group transform hover:-translate-y-1 transition-transform"
-                        onClick={() => setSelectedImage(image.src)}
-                    >
-                        <img src={image.src} alt={image.title} className="w-full h-48 object-cover"/>
-                        <div className="p-4">
-                            <h3 className="font-semibold text-lg text-gray-700 group-hover:text-blue-600">{image.title}</h3>
-                        </div>
-                    </div>
-                ))}
-            </div>
-            {selectedImage && <ImageModal src={selectedImage} onClose={() => setSelectedImage(null)} />}
+        <div className="w-full h-full p-4 bg-white text-black flex flex-col items-center justify-center">
+            <h1 className="text-xl font-bold">Maxfra Library</h1>
+            <p className="mt-4">This is a placeholder for the library application.</p>
         </div>
     );
 };
 
-// --- Image Viewer App ---
 export const ImageViewerApp: React.FC<Partial<AppProps>> = ({ file }) => {
-  if (!file || !file.content) {
     return (
-        <div className="w-full h-full flex items-center justify-center bg-gray-900 text-white p-4">
-            <p className="text-red-500">Could not display image. File is missing or empty.</p>
+        <div className="w-full h-full p-4 bg-white text-black flex flex-col items-center justify-center">
+            <h1 className="text-xl font-bold">Image Viewer</h1>
+            {file?.content ? (
+                <img src={file.content} alt={file.name} className="max-w-full max-h-[80%] object-contain mt-4" />
+            ) : (
+                <p className="mt-4">No image file loaded.</p>
+            )}
         </div>
     );
-  }
-  return (
-    <div className="w-full h-full flex items-center justify-center bg-gray-800 p-4 overflow-auto">
-      <img src={file.content} alt={file.name} className="max-w-full max-h-full object-contain" />
-    </div>
-  );
 };
+
+
+// All app components should be exported here
+export { CheckInApp };

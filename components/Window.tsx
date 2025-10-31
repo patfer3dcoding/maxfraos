@@ -106,6 +106,7 @@ const Window: React.FC<WindowProps> = ({ windowState: ws, onClose, onMinimize, o
         onDoubleClick={() => onMaximize(ws.id)}
       >
         <div className="flex items-center gap-2">
+          {/* FIX: Call ws.icon as a function */}
           {ws.icon('w-5 h-5')}
           <span className="text-white text-sm font-semibold">{ws.title}</span>
         </div>

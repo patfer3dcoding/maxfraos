@@ -56,6 +56,7 @@ const getInitialFileSystem = (): DirectoryNode => {
       date: string;
       time: string;
       studentId: string;
+      studentName?: string; // Add studentName for easier display in appointments
       teacher: 'Fernando' | 'Maggi' | 'Rosi';
       type: 'Course' | 'Special';
       details: string; // Course or Special name
@@ -97,16 +98,16 @@ const getInitialFileSystem = (): DirectoryNode => {
     const formatDate = (date: Date) => date.toISOString().slice(0, 10);
 
     const sampleAppointments: AppointmentForSeed[] = [
-        { id: 'app-1', location: 'Perisur', date: formatDate(validToday), time: '10:00', studentId: 'student-1', teacher: 'Fernando', type: 'Course', details: 'Microblading', attendance: 'Pending' },
-        { id: 'app-2', location: 'Perisur', date: formatDate(validToday), time: '10:00', studentId: 'student-2', teacher: 'Fernando', type: 'Course', details: 'Microblading', attendance: 'Pending' },
-        { id: 'app-3', location: 'Perisur', date: formatDate(validToday), time: '10:00', studentId: 'student-4', teacher: 'Fernando', type: 'Course', details: 'Microblading', attendance: 'Pending' },
-        { id: 'app-4', location: 'Polanco', date: formatDate(validToday), time: '12:00', studentId: 'student-3', teacher: 'Maggi', type: 'Course', details: 'Lash Lifting', attendance: 'Pending', notes: "Student asked to review the new serum." },
-        { id: 'app-5', location: 'Cd Brisas', date: formatDate(validToday), time: '15:00', studentId: 'student-5', teacher: 'Rosi', type: 'Special', details: 'Information', attendance: 'Present' },
-        { id: 'app-6', location: 'Perisur', date: formatDate(validTomorrow), time: '10:00', studentId: 'student-5', teacher: 'Fernando', type: 'Course', details: 'Eyelash Extensions', attendance: 'Pending' },
-        { id: 'app-7', location: 'Perisur', date: formatDate(validTomorrow), time: '10:00', studentId: 'student-1', teacher: 'Fernando', type: 'Course', details: 'Eyelash Extensions', attendance: 'Pending' },
-        { id: 'app-8', location: 'Cd Brisas', date: formatDate(validTomorrow), time: '14:00', studentId: 'student-2', teacher: 'Rosi', type: 'Course', details: 'Hena', attendance: 'Pending' },
-        { id: 'app-9', location: 'Polanco', date: formatDate(validDayAfter), time: '16:00', studentId: 'student-3', teacher: 'Maggi', type: 'Special', details: 'Pickup Diploma', attendance: 'Pending' },
-        { id: 'app-10', location: 'Perisur', date: formatDate(validDayAfter), time: '10:00', studentId: 'student-4', teacher: 'Fernando', type: 'Course', details: 'Microblading', attendance: 'Pending' }
+        { id: 'app-1', location: 'Perisur', date: formatDate(validToday), time: '10:00', studentId: 'student-1', studentName: 'Ana García', teacher: 'Fernando', type: 'Course', details: 'Microblading', attendance: 'Pending' },
+        { id: 'app-2', location: 'Perisur', date: formatDate(validToday), time: '10:00', studentId: 'student-2', studentName: 'Luis Martínez', teacher: 'Fernando', type: 'Course', details: 'Microblading', attendance: 'Pending' },
+        { id: 'app-3', location: 'Perisur', date: formatDate(validToday), time: '10:00', studentId: 'student-4', studentName: 'Carlos Gómez', teacher: 'Fernando', type: 'Course', details: 'Microblading', attendance: 'Pending' },
+        { id: 'app-4', location: 'Polanco', date: formatDate(validToday), time: '12:00', studentId: 'student-3', studentName: 'Sofía Hernández', teacher: 'Maggi', type: 'Course', details: 'Lash Lifting', attendance: 'Pending', notes: "Student asked to review the new serum." },
+        { id: 'app-5', location: 'Cd Brisas', date: formatDate(validToday), time: '15:00', studentId: 'student-5', studentName: 'María Torres', teacher: 'Rosi', type: 'Special', details: 'Information', attendance: 'Present' },
+        { id: 'app-6', location: 'Perisur', date: formatDate(validTomorrow), time: '10:00', studentId: 'student-5', studentName: 'María Torres', teacher: 'Fernando', type: 'Course', details: 'Eyelash Extensions', attendance: 'Pending' },
+        { id: 'app-7', location: 'Perisur', date: formatDate(validTomorrow), time: '10:00', studentId: 'student-1', studentName: 'Ana García', teacher: 'Fernando', type: 'Course', details: 'Eyelash Extensions', attendance: 'Pending' },
+        { id: 'app-8', location: 'Cd Brisas', date: formatDate(validTomorrow), time: '14:00', studentId: 'student-2', studentName: 'Luis Martínez', teacher: 'Rosi', type: 'Course', details: 'Hena', attendance: 'Pending' },
+        { id: 'app-9', location: 'Polanco', date: formatDate(validDayAfter), time: '16:00', studentId: 'student-3', studentName: 'Sofía Hernández', teacher: 'Maggi', type: 'Special', details: 'Pickup Diploma', attendance: 'Pending' },
+        { id: 'app-10', location: 'Perisur', date: formatDate(validDayAfter), time: '10:00', studentId: 'student-4', studentName: 'Carlos Gómez', teacher: 'Fernando', type: 'Course', details: 'Microblading', attendance: 'Pending' }
     ];
     
     const studentsFileContent = JSON.stringify(sampleStudents, null, 2);
@@ -123,7 +124,7 @@ const getInitialFileSystem = (): DirectoryNode => {
             { type: 'directory', name: 'system', children: [
                 { type: 'file', name: 'maxfra-students.json', content: studentsFileContent },
                 { type: 'file', name: 'maxfra-appointments.json', content: appointmentsFileContent },
-                { type: 'file', name: 'maxfra-check-in-log.json', content: '[]' },
+                { type: 'file', name: 'maxfra-check-in-log.json', content: '[]' }, // Added check-in log file
                 { type: 'file', name: 'maxfra-transactions.json', content: '[]' },
             ]},
             { type: 'file', name: 'system.config', content: 'Initial system configuration.' },
@@ -145,7 +146,8 @@ const App: React.FC = () => {
             const systemDir = parsed.children.find((c): c is DirectoryNode => c.name === 'system' && c.type === 'directory');
             if (systemDir) {
                 const appointmentsFile = systemDir.children.find(f => f.name === 'maxfra-appointments.json');
-                if (appointmentsFile) {
+                const checkInLogFile = systemDir.children.find(f => f.name === 'maxfra-check-in-log.json'); // Check for check-in log
+                if (appointmentsFile && checkInLogFile) { // Ensure both exist
                     return parsed; 
                 }
             }
@@ -262,7 +264,8 @@ const App: React.FC = () => {
     <div className="h-screen w-screen bg-cover bg-center" style={{ backgroundImage: backgroundImageUrl }}>
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-none">
         <div className="flex items-center gap-4">
-            <WindowsLogoIcon className="h-24 w-24" />
+            {/* FIX: Call WindowsLogoIcon as a function */}
+            {WindowsLogoIcon("h-24 w-24")}
             <img src={MAXFRA_LOGO_B64} alt="Maxfra Academy Logo" className={`h-32 w-32 opacity-90 ${backgroundId === 'matrix' ? 'invert' : ''}`} />
         </div>
         <h1 className="text-4xl font-light text-white mt-6 [text-shadow:2px_2px_4px_rgba(0,0,0,0.7)]">
