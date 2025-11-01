@@ -1,8 +1,9 @@
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { FolderIcon, FileIcon, ChevronLeftIcon, ChevronRightIcon, ReloadIcon, HomeIcon, PlusIcon, CloseIcon, MaxfraWordIcon, MaxfraExcelIcon, MaxfraOutlookIcon, TrashIcon, WhatsAppIcon, SearchIcon, CheckInIcon, ShareIcon, UploadIcon } from '../components/icons';
-import type { AppProps, FSNode, FileNode, DirectoryNode, FileData, Student, CheckInLog, Transaction, Appointment } from '../types';
+import { FolderIcon, FileIcon, ChevronLeftIcon, ChevronRightIcon, ReloadIcon, HomeIcon, PlusIcon, CloseIcon, MaxfraWordIcon, MaxfraExcelIcon, MaxfraOutlookIcon, TrashIcon, WhatsAppIcon, SearchIcon, CheckInIcon, ShareIcon, UploadIcon, ClipIcon } from '../components/icons';
+import type { AppProps, FSNode, FileNode, DirectoryNode, FileData, Student, CheckInLog, Transaction, Appointment, AttendanceRecord, StudentDocument, LibraryResource } from '../types';
 import { MAXFRA_LOGO_B64, LIBRARY_IMAGES } from '../constants';
-import { CheckInApp } from './CheckInApp'; // Import the new CheckInApp
+// Fix: Re-export CheckInApp as it's defined in its own file but needed by constants.tsx through this barrel file.
+export { CheckInApp } from './CheckInApp';
 
 // --- Filesystem Utilities ---
 const findNodeByPath = (root: FSNode, path: string[]): DirectoryNode | null => {
@@ -47,7 +48,6 @@ const saveFileToFS = (root: FSNode, path: string[], fileName: string, content: s
     return newRoot;
 };
 
-// FIX: Added useDebounce hook definition to resolve "Cannot find name 'useDebounce'" error.
 const useDebounce = <T,>(value: T, delay: number): T => {
     const [debouncedValue, setDebouncedValue] = useState<T>(value);
     useEffect(() => {
@@ -262,25 +262,19 @@ export const MaxfraAiBrowserApp: React.FC<Partial<AppProps>> = () => {
                     <div className="flex items-center pl-3 pr-2 py-2 cursor-pointer grow shrink min-w-0">
                       <span className="truncate text-sm select-none">{tab.title}</span>
                     </div>
-                    {/* FIX: Changed JSX component to function call for CloseIcon */}
                     <button onClick={(e) => handleCloseTab(e, tab.id)} className="p-1 mr-1 rounded-full hover:bg-red-500 hover:text-white shrink-0">
                         {CloseIcon("w-3.5 h-3.5")}
                     </button>
                 </div>
             ))}
-            {/* FIX: Changed JSX component to function call for PlusIcon */}
             <button onClick={handleAddTab} className="p-1 ml-1 mb-1 rounded-md hover:bg-gray-400/50">
                 {PlusIcon("w-5 h-5")}
             </button>
         </div>
         <div className="flex-shrink-0 p-1.5 bg-gray-200 flex items-center gap-1 border-b border-gray-300">
-            {/* FIX: Changed JSX component to function call for ChevronLeftIcon */}
             <button onClick={handleBack} className="p-2 rounded-full hover:bg-gray-300 text-gray-700">{ChevronLeftIcon()}</button>
-            {/* FIX: Changed JSX component to function call for ChevronRightIcon */}
             <button onClick={handleForward} className="p-2 rounded-full hover:bg-gray-300 text-gray-700">{ChevronRightIcon()}</button>
-            {/* FIX: Changed JSX component to function call for ReloadIcon */}
             <button onClick={handleRefresh} className="p-2 rounded-full hover:bg-gray-300 text-gray-700">{ReloadIcon()}</button>
-            {/* FIX: Changed JSX component to function call for HomeIcon */}
             <button onClick={handleHome} className="p-2 rounded-full hover:bg-gray-300 text-gray-700">{HomeIcon()}</button>
             <form onSubmit={handleNavigate} className="flex-grow">
                 <input
@@ -400,7 +394,6 @@ export const FileExplorerApp: React.FC<Partial<AppProps>> = ({ fs, setFs, openAp
             <div className="flex items-center p-2 bg-gray-100 border-b gap-2 flex-wrap">
                 <button onClick={handleBack} disabled={currentPath.length === 0} className="px-3 py-1.5 bg-gray-200 rounded disabled:opacity-50 text-black">Back</button>
                 <button onClick={() => fileInputRef.current?.click()} className="px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2">
-                    {/* FIX: Changed JSX component to function call for UploadIcon */}
                     {UploadIcon("w-4 h-4")}
                     Upload Image
                 </button>
@@ -425,7 +418,6 @@ export const FileExplorerApp: React.FC<Partial<AppProps>> = ({ fs, setFs, openAp
                     {itemsToDisplay.map(node => (
                         <div key={node.name} className="flex flex-col items-center p-2 rounded hover:bg-blue-100 cursor-pointer"
                             onDoubleClick={() => node.type === 'directory' ? handleNavigate(node.name) : handleOpenFile(node as FileNode)}>
-                            {/* FIX: Changed JSX component to function call for FolderIcon/FileIcon */}
                             {node.type === 'directory' ? FolderIcon() : FileIcon()}
                             <span className="text-xs mt-1 text-center break-all">{node.name}</span>
                         </div>
@@ -433,7 +425,6 @@ export const FileExplorerApp: React.FC<Partial<AppProps>> = ({ fs, setFs, openAp
                      {searchResults.map((result, index) => (
                         <div key={`${result.node.name}-${index}`} className="flex flex-col items-center p-2 rounded hover:bg-green-100 cursor-pointer"
                             onDoubleClick={() => handleSearchResultClick(result)}>
-                            {/* FIX: Changed JSX component to function call for FolderIcon/FileIcon */}
                             {result.node.type === 'directory' ? FolderIcon() : FileIcon()}
                             <span className="text-xs mt-1 text-center break-all">{result.node.name}</span>
                         </div>
@@ -660,11 +651,8 @@ const AppointmentDetailModal = ({ appointmentGroup, studentsById, onClose, onUpd
                         <p className="text-gray-500">{appointmentGroup.location} @ {appointmentGroup.time}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                        {/* FIX: Changed JSX component to function call for ShareIcon */}
                         <button onClick={() => onPrintSave(appointmentGroup)} className="p-2 rounded-full hover:bg-gray-200" title="Print/Save">{ShareIcon()}</button>
-                         {/* FIX: Changed JSX component to function call for TrashIcon */}
                          <button onClick={() => { if(window.confirm('Are you sure you want to delete this entire appointment group?')) onDeleteAppointmentGroup(appointmentGroup.id) }} className="p-2 rounded-full hover:bg-red-100" title="Delete Appointment">{TrashIcon("text-red-500")}</button>
-                        {/* FIX: Changed JSX component to function call for CloseIcon */}
                         <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-200">
                             {CloseIcon("w-5 h-5")}
                         </button>
@@ -698,7 +686,6 @@ const DailyView = React.memo(({ groupedAppointments, onAppointmentClick, onExpor
                              <th key={loc} className={`p-3 font-semibold text-left text-gray-600 border-b relative group ${index < LOCATIONS.length - 1 ? 'border-r' : ''}`}>
                                 <span>{loc}</span>
                                 <button onClick={() => onExport(loc)} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-gray-200 opacity-0 group-hover:opacity-100 hover:bg-gray-300 transition-opacity" title={`Export ${loc} schedule`}>
-                                    {/* FIX: Changed JSX component to function call for ShareIcon */}
                                     {ShareIcon("w-4 h-4 text-gray-600")}
                                 </button>
                             </th>
@@ -1094,21 +1081,18 @@ export const CalendarApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
                             <button key={v} onClick={() => setView(v)} className={`px-3 py-1 text-sm font-semibold rounded-md transition-colors ${view === v ? 'bg-white shadow' : 'text-gray-600 hover:bg-gray-300'}`}>{v}</button>
                         ))}
                     </div>
-                     {/* FIX: Changed JSX component to function call for WhatsAppIcon */}
                      <button onClick={generateWhatsAppMessage} className="p-2 rounded-full hover:bg-gray-200" title="Share on WhatsApp">
                         {WhatsAppIcon("w-6 h-6 text-green-500")}
                     </button>
                 </div>
                 <div className="flex items-center gap-2 justify-center w-1/3">
-                     {/* FIX: Changed JSX component to function call for ChevronLeftIcon */}
                      <button onClick={() => changeDate(-1)} className="p-2 rounded-full hover:bg-gray-200">{ChevronLeftIcon()}</button>
                      <span className="font-bold text-lg w-auto min-w-[280px] text-center text-gray-700">{getHeaderTitle()}</span>
-                     {/* FIX: Changed JSX component to function call for ChevronRightIcon */}
                      <button onClick={() => changeDate(1)} className="p-2 rounded-full hover:bg-gray-200">{ChevronRightIcon()}</button>
                 </div>
                 <div className="w-1/3 flex justify-end">
                     <div className="relative w-64" ref={searchRef}>
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"> {/* FIX: Changed JSX component to function call for SearchIcon */} {SearchIcon("text-gray-400")} </div>
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"> {SearchIcon("text-gray-400")} </div>
                         <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onFocus={() => setShowSearchResults(true)} placeholder="Search by student name..." className="w-full pl-10 pr-4 py-2 border rounded-full bg-gray-50 focus:bg-white focus:ring-2"/>
                         {showSearchResults && searchResults.length > 0 && (
                              <div className="absolute top-full mt-2 w-full bg-white border rounded-lg shadow-xl z-10 max-h-80 overflow-y-auto">
@@ -1239,9 +1223,12 @@ export const CalculatorApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
     const [operator, setOperator] = useState<string | null>(null);
     const [waitingForSecondOperand, setWaitingForSecondOperand] = useState(false);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [students, setStudents] = useState<Student[]>([]);
     const [showLogForm, setShowLogForm] = useState(false);
     const [logDescription, setLogDescription] = useState('');
     const [logType, setLogType] = useState<'income' | 'expense'>('income');
+    const [linkToStudent, setLinkToStudent] = useState(false);
+    const [selectedStudentId, setSelectedStudentId] = useState('');
 
     const formatCurrency = useCallback((value: number | string) => {
         const number = typeof value === 'string' ? parseFloat(value) : value;
@@ -1252,13 +1239,23 @@ export const CalculatorApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
     useEffect(() => {
         if (!fs) return;
         const dir = findNodeByPath(fs, APPOINTMENTS_FILE_PATH);
-        const file = dir?.children.find(f => f.name === TRANSACTIONS_FILE_NAME && f.type === 'file') as FileNode | undefined;
-        if (file) {
+        
+        const transactionsFile = dir?.children.find(f => f.name === TRANSACTIONS_FILE_NAME && f.type === 'file') as FileNode | undefined;
+        if (transactionsFile) {
             try {
-                const parsed = JSON.parse(file.content);
+                const parsed = JSON.parse(transactionsFile.content);
                 if (Array.isArray(parsed)) setTransactions(parsed);
             } catch { console.error("Failed to parse transactions file"); }
         }
+        
+        const studentsFile = dir?.children.find(f => f.name === STUDENTS_FILE_NAME && f.type === 'file') as FileNode | undefined;
+        if (studentsFile) {
+            try {
+                const parsed = JSON.parse(studentsFile.content);
+                if(Array.isArray(parsed)) setStudents(parsed);
+            } catch { console.error("Failed to parse students file"); }
+        }
+
     }, [fs]);
     
     const saveTransactions = useCallback((newTransactions: Transaction[]) => {
@@ -1335,17 +1332,22 @@ export const CalculatorApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
             return;
         }
 
+        const student = students.find(s => s.id === selectedStudentId);
+
         const newTransaction: Transaction = {
             id: `trans-${Date.now()}`,
             date: new Date().toISOString(),
             description: logDescription,
             amount: amount,
-            type: logType
+            type: logType,
+            ...(linkToStudent && student ? { studentId: student.id, studentName: `${student.firstName} ${student.paternalLastName}` } : {})
         };
         saveTransactions([...transactions, newTransaction].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
         
         setShowLogForm(false);
         setLogDescription('');
+        setLinkToStudent(false);
+        setSelectedStudentId('');
         handleClearClick();
     };
 
@@ -1369,7 +1371,19 @@ export const CalculatorApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
                     <button onClick={() => setLogType('income')} className={`w-1/2 p-2 rounded-md font-semibold text-center transition ${logType === 'income' ? 'bg-green-500 text-white shadow' : 'text-gray-600'}`}>Income</button>
                     <button onClick={() => setLogType('expense')} className={`w-1/2 p-2 rounded-md font-semibold text-center transition ${logType === 'expense' ? 'bg-red-500 text-white shadow' : 'text-gray-600'}`}>Expense</button>
                 </div>
-                <div className="flex justify-end gap-2">
+                 <div className="mt-3">
+                    <label className="flex items-center">
+                        <input type="checkbox" checked={linkToStudent} onChange={e => setLinkToStudent(e.target.checked)} className="h-4 w-4 rounded" />
+                        <span className="ml-2 text-sm">Link to a student profile?</span>
+                    </label>
+                    {linkToStudent && (
+                        <select value={selectedStudentId} onChange={e => setSelectedStudentId(e.target.value)} className="w-full p-2 border rounded mt-2">
+                            <option value="">Select a student...</option>
+                            {students.sort((a,b) => a.firstName.localeCompare(b.firstName)).map(s => <option key={s.id} value={s.id}>{s.firstName} {s.paternalLastName}</option>)}
+                        </select>
+                    )}
+                </div>
+                <div className="flex justify-end gap-2 mt-4">
                     <button onClick={() => setShowLogForm(false)} className="px-4 py-2 bg-gray-300 rounded">Cancel</button>
                     <button onClick={handleSaveTransaction} className="px-4 py-2 bg-blue-600 text-white rounded">Save</button>
                 </div>
@@ -1379,35 +1393,35 @@ export const CalculatorApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
 
     return (
         <div className="w-full h-full flex bg-gray-100 text-black font-sans relative">
-            {showLogForm && <LogTransactionForm />}
+            {showLogForm && LogTransactionForm()}
             <div className="w-2/3 flex flex-col p-4">
                 <div className="w-full bg-gray-800 text-white text-right rounded-t-lg p-4 overflow-hidden">
                     <span className="text-5xl font-light tracking-wider break-all">{displayValue}</span>
                 </div>
                 <div className="flex-grow grid grid-cols-4 grid-rows-5 gap-2 p-4 bg-white rounded-b-lg shadow-inner">
-                    <CalculatorButton onClick={handleClearClick} label="AC" className="bg-red-200 hover:bg-red-300" />
-                    <CalculatorButton onClick={handleToggleSign} label="+/-" />
-                    <CalculatorButton onClick={handlePercent} label="%" />
-                    <CalculatorButton onClick={() => handleOperatorClick('/')} label="÷" className="bg-blue-200 hover:bg-blue-300" />
+                    {CalculatorButton({ onClick: handleClearClick, label: "AC", className: "bg-red-200 hover:bg-red-300" })}
+                    {CalculatorButton({ onClick: handleToggleSign, label: "+/-" })}
+                    {CalculatorButton({ onClick: handlePercent, label: "%" })}
+                    {CalculatorButton({ onClick: () => handleOperatorClick('/'), label: "÷", className: "bg-blue-200 hover:bg-blue-300" })}
 
-                    <CalculatorButton onClick={() => handleDigitClick('7')} label="7" />
-                    <CalculatorButton onClick={() => handleDigitClick('8')} label="8" />
-                    <CalculatorButton onClick={() => handleDigitClick('9')} label="9" />
-                    <CalculatorButton onClick={() => handleOperatorClick('*')} label="×" className="bg-blue-200 hover:bg-blue-300" />
+                    {CalculatorButton({ onClick: () => handleDigitClick('7'), label: "7" })}
+                    {CalculatorButton({ onClick: () => handleDigitClick('8'), label: "8" })}
+                    {CalculatorButton({ onClick: () => handleDigitClick('9'), label: "9" })}
+                    {CalculatorButton({ onClick: () => handleOperatorClick('*'), label: "×", className: "bg-blue-200 hover:bg-blue-300" })}
 
-                    <CalculatorButton onClick={() => handleDigitClick('4')} label="4" />
-                    <CalculatorButton onClick={() => handleDigitClick('5')} label="5" />
-                    <CalculatorButton onClick={() => handleDigitClick('6')} label="6" />
-                    <CalculatorButton onClick={() => handleOperatorClick('-')} label="−" className="bg-blue-200 hover:bg-blue-300" />
+                    {CalculatorButton({ onClick: () => handleDigitClick('4'), label: "4" })}
+                    {CalculatorButton({ onClick: () => handleDigitClick('5'), label: "5" })}
+                    {CalculatorButton({ onClick: () => handleDigitClick('6'), label: "6" })}
+                    {CalculatorButton({ onClick: () => handleOperatorClick('-'), label: "−", className: "bg-blue-200 hover:bg-blue-300" })}
 
-                    <CalculatorButton onClick={() => handleDigitClick('1')} label="1" />
-                    <CalculatorButton onClick={() => handleDigitClick('2')} label="2" />
-                    <CalculatorButton onClick={() => handleDigitClick('3')} label="3" />
-                    <CalculatorButton onClick={() => handleOperatorClick('+')} label="+" className="bg-blue-200 hover:bg-blue-300" />
+                    {CalculatorButton({ onClick: () => handleDigitClick('1'), label: "1" })}
+                    {CalculatorButton({ onClick: () => handleDigitClick('2'), label: "2" })}
+                    {CalculatorButton({ onClick: () => handleDigitClick('3'), label: "3" })}
+                    {CalculatorButton({ onClick: () => handleOperatorClick('+'), label: "+", className: "bg-blue-200 hover:bg-blue-300" })}
 
-                    <CalculatorButton onClick={() => handleDigitClick('0')} label="0" className="col-span-2" />
-                    <CalculatorButton onClick={handleDecimalClick} label="." />
-                    <CalculatorButton onClick={() => handleOperatorClick('=')} label="=" className="bg-blue-500 hover:bg-blue-600 text-white" />
+                    {CalculatorButton({ onClick: () => handleDigitClick('0'), label: "0", className: "col-span-2" })}
+                    {CalculatorButton({ onClick: handleDecimalClick, label: "." })}
+                    {CalculatorButton({ onClick: () => handleOperatorClick('='), label: "=", className: "bg-blue-500 hover:bg-blue-600 text-white" })}
                 </div>
                 <button onClick={() => setShowLogForm(true)} className="mt-4 w-full py-3 bg-green-500 text-white font-bold text-lg rounded-lg hover:bg-green-600">
                     Log this amount
@@ -1426,7 +1440,9 @@ export const CalculatorApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
                                <li key={t.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                                    <div>
                                        <p className="font-semibold text-gray-700">{t.description}</p>
+                                        {t.studentName && <p className="text-xs text-blue-600">For: {t.studentName}</p>}
                                        <p className="text-xs text-gray-500">{new Date(t.date).toLocaleString('es-MX')}</p>
+
                                    </div>
                                    <p className={`font-bold ${t.type === 'income' ? 'text-green-500' : 'text-red-500'}`}>
                                        {t.type === 'income' ? '+' : '-'} {formatCurrency(t.amount)}
@@ -1497,7 +1513,6 @@ export const ClipCalculatorApp: React.FC<Partial<AppProps>> = () => {
     return (
         <div className="w-full h-full bg-gray-50 text-black flex flex-col items-center p-6 overflow-y-auto">
             <header className="w-full max-w-md text-center">
-                {/* ClipIcon is already a function that takes className string */}
                 {ClipIcon("w-20 h-20 mx-auto mb-4")}
                 <h1 className="text-2xl font-bold text-gray-800">Calculadora de Comisiones</h1>
                 <p className="text-sm text-gray-600 mt-1">Ingresa el precio de tu producto o servicio.</p>
@@ -1576,279 +1591,510 @@ export const ClipCalculatorApp: React.FC<Partial<AppProps>> = () => {
     );
 };
 
-
-// --- Student Database App ---
-const emptyStudent: Omit<Student, 'id'> = { firstName: '', paternalLastName: '', maternalLastName: '', mobilePhone: '', paymentStatus: 'Pending', diplomaStatus: 'Not Available'};
-
-export const StudentDatabaseApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
-    const [students, setStudents] = useState<Student[]>([]);
-    const [selectedStudentId, setSelectedStudentId] = useState<string | 'new' | null>(null);
-    const [formData, setFormData] = useState<Omit<Student, 'id'>>(emptyStudent);
-    const [searchQuery, setSearchQuery] = useState('');
-    const signatureCanvasRef = useRef<HTMLCanvasElement>(null);
-    
-    useEffect(() => {
-        if (!fs) return;
-        const dir = findNodeByPath(fs, APPOINTMENTS_FILE_PATH);
-        const file = dir?.children.find(f => f.name === STUDENTS_FILE_NAME && f.type === 'file') as FileNode | undefined;
-        if (file) {
-            try { setStudents(JSON.parse(file.content)); } 
-            catch { console.error("Failed to parse students file"); }
-        }
-    }, [fs]);
-    
-    useEffect(() => {
-        if (selectedStudentId === 'new') {
-            setFormData(emptyStudent);
-        } else if (selectedStudentId) {
-            const selected = students.find(s => s.id === selectedStudentId);
-            if (selected) {
-                 const { id, ...data } = selected;
-                 setFormData(data);
-            }
-        } else {
-            setFormData(emptyStudent);
-        }
-    }, [selectedStudentId, students]);
-
-    const handleSave = () => {
-        if (!setFs) return;
-        if (!formData.firstName || !formData.paternalLastName || !formData.mobilePhone) {
-            alert("First Name, Paternal Last Name, and Mobile Phone are required.");
-            return;
-        }
-    
-        const isNew = !selectedStudentId || selectedStudentId === 'new';
-        let newStudentsList: Student[];
-        let newSelectedId: string | null = selectedStudentId as string | null;
-        
-        if (isNew) {
-            const newStudent: Student = { ...formData, id: `student-${Date.now()}` };
-            newStudentsList = [...students, newStudent];
-            newSelectedId = null; // Deselect after creating a new one
-        } else {
-            newStudentsList = students.map(s => 
-                s.id === selectedStudentId ? { ...formData, id: selectedStudentId } : s
-            );
-        }
-
-        setStudents(newStudentsList);
-        setFs(currentFs => saveFileToFS(currentFs, APPOINTMENTS_FILE_PATH, STUDENTS_FILE_NAME, JSON.stringify(newStudentsList, null, 2)));
-        setSelectedStudentId(newSelectedId);
-        alert("Student saved successfully!");
-    };
-    
-    const handleNewStudent = () => {
-        setSelectedStudentId('new');
-    }
-    
-    const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-    
-    const handleClearSignature = () => {
-        const canvas = signatureCanvasRef.current;
-        if(canvas) {
-            const ctx = canvas.getContext('2d');
-            ctx?.clearRect(0, 0, canvas.width, canvas.height);
-            setFormData(f => ({...f, signature: ''}));
-        }
-    };
-
-    const filteredStudents = students.filter(s => 
-        `${s.firstName} ${s.paternalLastName} ${s.maternalLastName}`.toLowerCase().includes(searchQuery.toLowerCase())
-    ).sort((a,b) => a.firstName.localeCompare(b.firstName));
-
-    const FormSection: React.FC<{title: string, children: React.ReactNode}> = ({ title, children }) => (
-        <fieldset className="border p-4 rounded-md mt-4">
-            <legend className="px-2 font-semibold text-lg">{title}</legend>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{children}</div>
-        </fieldset>
-    );
-    const FormInput: React.FC<{label: string, name: keyof Student, value: any, required?: boolean}> = ({label, name, value, required=false}) => (
-        <div>
-            <label className="block text-sm font-medium text-gray-700">{label}</label>
-            <input type="text" name={name} value={value || ''} onChange={handleFormChange} required={required} className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"/>
-        </div>
-    );
-    const FormSelect: React.FC<{label: string, name: keyof Student, value: any, options: string[]}> = ({label, name, value, options}) => (
-         <div>
-            <label className="block text-sm font-medium text-gray-700">{label}</label>
-            <select name={name} value={value || ''} onChange={handleFormChange} className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-            </select>
-        </div>
-    );
-
-    return (
-        <div className="w-full h-full flex bg-gray-200 text-black">
-            <aside className="w-1/4 bg-white border-r p-4 flex flex-col">
-                <h3 className="text-xl font-bold mb-4 text-gray-800">Students</h3>
-                <input
-                    type="search"
-                    placeholder="Search students..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full p-2 border rounded-md mb-3 bg-gray-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-400"
-                />
-                <button onClick={handleNewStudent} className="w-full p-2 bg-blue-600 text-white rounded-md mb-4 hover:bg-blue-700 flex items-center justify-center gap-2">
-                    {/* FIX: Changed JSX component to function call for PlusIcon */}
-                    {PlusIcon("w-5 h-5")} Add New Student
-                </button>
-                <div className="flex-grow overflow-y-auto pr-2">
-                    {filteredStudents.length > 0 ? (
-                        <ul className="space-y-1">
-                            {filteredStudents.map(student => (
-                                <li key={student.id}>
-                                    <button onClick={() => setSelectedStudentId(student.id)}
-                                        className={`w-full text-left p-2 rounded-md transition-colors flex flex-col ${selectedStudentId === student.id ? 'bg-blue-100 font-semibold text-blue-800' : 'hover:bg-gray-100 text-gray-700'}`}>
-                                        <span>{student.firstName} {student.paternalLastName}</span>
-                                        <span className="text-xs text-gray-500">{student.mobilePhone}</span>
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p className="text-center text-gray-500 mt-10">No students found.</p>
-                    )}
-                </div>
-            </aside>
-            <main className="flex-grow p-4 overflow-y-auto">
-                {selectedStudentId ? (
-                    <>
-                        <h3 className="text-2xl font-bold text-gray-800 mb-4">{selectedStudentId === 'new' ? 'New Student' : 'Edit Student'}</h3>
-                        <form className="bg-white p-6 rounded-lg shadow-md">
-                            <FormSection title="Personal Information">
-                                <FormInput label="First Name" name="firstName" value={formData.firstName} required/>
-                                <FormInput label="Paternal Last Name" name="paternalLastName" value={formData.paternalLastName} required/>
-                                <FormInput label="Maternal Last Name" name="maternalLastName" value={formData.maternalLastName}/>
-                                <FormInput label="Date of Birth" name="dob" value={formData.dob}/>
-                                <FormInput label="Nationality" name="nationality" value={formData.nationality}/>
-                                <FormSelect label="Sex" name="sex" value={formData.sex} options={['Male', 'Female', 'Other']}/>
-                                <FormSelect label="COVID Vaccine" name="covidVaccine" value={formData.covidVaccine} options={['Yes', 'No', 'Unknown']}/>
-                                <FormInput label="CURP" name="curp" value={formData.curp}/>
-                            </FormSection>
-                            <FormSection title="Contact & Professional">
-                                <FormInput label="Mobile Phone" name="mobilePhone" value={formData.mobilePhone} required/>
-                                <FormInput label="Home Phone" name="homePhone" value={formData.homePhone}/>
-                                <FormInput label="Profession" name="profession" value={formData.profession}/>
-                                <FormInput label="Education Level" name="educationLevel" value={formData.educationLevel}/>
-                                <FormInput label="Allergies" name="allergies" value={formData.allergies}/>
-                            </FormSection>
-                            <FormSection title="Address">
-                                <FormInput label="Street" name="addressStreet" value={formData.addressStreet}/>
-                                <FormInput label="Colonia" name="addressColonia" value={formData.addressColonia}/>
-                                <FormInput label="Delegacion" name="addressDelegacion" value={formData.addressDelegacion}/>
-                                <FormInput label="Postal Code" name="addressCp" value={formData.addressCp}/>
-                            </FormSection>
-                            <FormSection title="Course Information">
-                                <FormInput label="Course Name" name="course" value={formData.course}/>
-                                <FormInput label="Course Duration" name="courseDuration" value={formData.courseDuration}/>
-                                <FormInput label="Total Classes" name="totalClasses" value={formData.totalClasses}/>
-                                <FormInput label="Start Date" name="startDate" value={formData.startDate}/>
-                                <FormInput label="End Date" name="endDate" value={formData.endDate}/>
-                                <FormInput label="Registration Date" name="registrationDate" value={formData.registrationDate}/>
-                                <FormInput label="Registration Cost" name="registrationCost" value={formData.registrationCost}/>
-                                <FormInput label="Total Cost" name="totalCost" value={formData.totalCost}/>
-                                <FormInput label="Monthly Payment" name="monthlyPayment" value={formData.monthlyPayment}/>
-                                <FormInput label="Cash Payment" name="cashPayment" value={formData.cashPayment}/>
-                                <FormInput label="Down Payment" name="downPayment" value={formData.downPayment}/>
-                                <FormInput label="Payment Date" name="paymentDate" value={formData.paymentDate}/>
-                                <FormSelect label="Payment Status" name="paymentStatus" value={formData.paymentStatus} options={['Paid', 'Pending', 'Partial']}/>
-                                <FormSelect label="Diploma Status" name="diplomaStatus" value={formData.diplomaStatus} options={['Available', 'Issued', 'Not Available']}/>
-                            </FormSection>
-                            <FormSection title="Emergency Contact">
-                                <FormInput label="Name" name="emergencyContactName" value={formData.emergencyContactName}/>
-                                <FormInput label="Paternal Last Name" name="emergencyContactPaternalLastName" value={formData.emergencyContactPaternalLastName}/>
-                                <FormInput label="Maternal Last Name" name="emergencyContactMaternalLastName" value={formData.emergencyContactMaternalLastName}/>
-                                <FormInput label="Date of Birth" name="emergencyContactDob" value={formData.emergencyContactDob}/>
-                                <FormInput label="Nationality" name="emergencyContactNationality" value={formData.emergencyContactNationality}/>
-                                <FormSelect label="Sex" name="emergencyContactSex" value={formData.emergencyContactSex} options={['Male', 'Female', 'Other']}/>
-                                <FormInput label="Relationship" name="emergencyContactRelationship" value={formData.emergencyContactRelationship}/>
-                                <FormInput label="Street" name="emergencyContactAddressStreet" value={formData.emergencyContactAddressStreet}/>
-                                <FormInput label="Colonia" name="emergencyContactAddressColonia" value={formData.emergencyContactAddressColonia}/>
-                                <FormInput label="Delegacion" name="emergencyContactAddressDelegacion" value={formData.emergencyContactAddressDelegacion}/>
-                                <FormInput label="Postal Code" name="emergencyContactAddressCp" value={formData.emergencyContactAddressCp}/>
-                                <FormInput label="Home Phone" name="emergencyContactHomePhone" value={formData.emergencyContactHomePhone}/>
-                                <FormInput label="Mobile Phone" name="emergencyContactMobilePhone" value={formData.emergencyContactMobilePhone}/>
-                            </FormSection>
-                            <FormSection title="Guardian Information (if minor)">
-                                <FormInput label="Name" name="guardianName" value={formData.guardianName}/>
-                                <FormInput label="Paternal Last Name" name="guardianPaternalLastName" value={formData.guardianPaternalLastName}/>
-                                <FormInput label="Maternal Last Name" name="guardianMaternalLastName" value={formData.guardianMaternalLastName}/>
-                                <FormInput label="Date of Birth" name="guardianDob" value={formData.guardianDob}/>
-                                <FormInput label="Nationality" name="guardianNationality" value={formData.guardianNationality}/>
-                                <FormSelect label="Sex" name="guardianSex" value={formData.guardianSex} options={['Male', 'Female', 'Other']}/>
-                                <FormInput label="Street" name="guardianAddressStreet" value={formData.guardianAddressStreet}/>
-                                <FormInput label="Colonia" name="guardianAddressColonia" value={formData.guardianAddressColonia}/>
-                                <FormInput label="Delegacion" name="guardianAddressDelegacion" value={formData.guardianAddressDelegacion}/>
-                                <FormInput label="Home Phone" name="guardianHomePhone" value={formData.guardianHomePhone}/>
-                                <FormInput label="Mobile Phone" name="guardianMobilePhone" value={formData.guardianMobilePhone}/>
-                            </FormSection>
-
-                            <FormSection title="Student Signature">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Signature</label>
-                                    <SignaturePad 
-                                        ref={signatureCanvasRef} 
-                                        width={400} 
-                                        height={100} 
-                                        initialData={formData.signature}
-                                        onEnd={(dataUrl) => setFormData(f => ({...f, signature: dataUrl}))} 
-                                    />
-                                    <button type="button" onClick={handleClearSignature} className="mt-2 px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600">Clear Signature</button>
-                                </div>
-                            </FormSection>
-                            
-                            <div className="flex justify-end gap-2 mt-6">
-                                <button type="button" onClick={() => setSelectedStudentId(null)} className="px-4 py-2 bg-gray-200 rounded">Cancel</button>
-                                <button type="button" onClick={handleSave} className="px-4 py-2 bg-blue-600 text-white rounded">Save Student</button>
-                            </div>
-                        </form>
-                    </>
-                ) : (
-                    <p className="text-center text-gray-500 py-10">Select a student from the left panel or add a new one.</p>
-                )}
-            </main>
-        </div>
-    );
-};
-
-// FIX: Added placeholder components for MaxfraOfficeSuiteApp, MaxfraLibraryApp, and ImageViewerApp
-// These components are referenced in constants.tsx but not defined in apps/index.tsx.
+// --- Placeholder Apps ---
 export const MaxfraOfficeSuiteApp: React.FC<Partial<AppProps>> = ({ file }) => {
-    return (
-        <div className="w-full h-full p-4 bg-white text-black flex flex-col items-center justify-center">
-            <h1 className="text-xl font-bold">Maxfra Office Suite</h1>
-            <p className="text-gray-600 mt-2">Opened with {file?.name || 'no file'}. Sub-app: {file?.subApp || 'N/A'}</p>
-            <p className="mt-4">This is a placeholder for the office suite application.</p>
-        </div>
-    );
+    const renderContent = () => {
+        if (file?.subApp === 'word') {
+            return <div className="p-4"><h2 className="font-bold text-lg flex items-center gap-2">{MaxfraWordIcon()}Maxfra Word</h2><p className="mt-2">Editing: {file.name}</p></div>;
+        }
+        if (file?.subApp === 'excel') {
+            return <div className="p-4"><h2 className="font-bold text-lg flex items-center gap-2">{MaxfraExcelIcon()}Maxfra Excel</h2><p className="mt-2">Editing: {file.name}</p></div>;
+        }
+        return <div className="p-4"><h2 className="font-bold text-lg flex items-center gap-2">{MaxfraOutlookIcon()}Maxfra Outlook</h2><p className="mt-2">Welcome to your inbox.</p></div>;
+    };
+    return <div className="w-full h-full bg-gray-100 text-black">{renderContent()}</div>;
 };
 
 export const MaxfraLibraryApp: React.FC<Partial<AppProps>> = () => {
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
     return (
-        <div className="w-full h-full p-4 bg-white text-black flex flex-col items-center justify-center">
-            <h1 className="text-xl font-bold">Maxfra Library</h1>
-            <p className="mt-4">This is a placeholder for the library application.</p>
+        <div className="w-full h-full bg-gray-200 text-black p-4 overflow-y-auto">
+            <h2 className="text-2xl font-bold mb-4">Maxfra Library</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {LIBRARY_IMAGES.map((image, index) => (
+                    <div key={index} className="cursor-pointer group" onClick={() => setSelectedImage(image.src)}>
+                        <img src={image.src} alt={image.title} className="w-full h-40 object-cover rounded-lg shadow-md group-hover:shadow-xl transition-shadow" />
+                        <p className="text-center font-semibold mt-2">{image.title}</p>
+                    </div>
+                ))}
+            </div>
+            {selectedImage && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50" onClick={() => setSelectedImage(null)}>
+                    <img src={selectedImage} alt="Full view" className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg" />
+                </div>
+            )}
         </div>
     );
 };
 
 export const ImageViewerApp: React.FC<Partial<AppProps>> = ({ file }) => {
     return (
-        <div className="w-full h-full p-4 bg-white text-black flex flex-col items-center justify-center">
-            <h1 className="text-xl font-bold">Image Viewer</h1>
+        <div className="w-full h-full bg-gray-800 flex items-center justify-center p-4">
             {file?.content ? (
-                <img src={file.content} alt={file.name} className="max-w-full max-h-[80%] object-contain mt-4" />
+                <img src={file.content} alt={file.name} className="max-w-full max-h-full object-contain" />
             ) : (
-                <p className="mt-4">No image file loaded.</p>
+                <p className="text-white">No image to display.</p>
             )}
         </div>
     );
 };
 
 
-// All app components should be exported here
-export { CheckInApp };
+// --- Student Database App ---
+const emptyStudent: Omit<Student, 'id'> = { 
+    firstName: '', 
+    paternalLastName: '', 
+    maternalLastName: '', 
+    mobilePhone: '', 
+    paymentStatus: 'Pending', 
+    diplomaStatus: 'Not Available',
+    attendance: [],
+    documents: [],
+    libraryResources: [],
+    diplomaFile: undefined,
+};
+
+const FormSection: React.FC<{title: string, children: React.ReactNode, className?: string}> = ({ title, children, className }) => (
+    <fieldset className={`border border-slate-200 p-4 rounded-md ${className}`}>
+        <legend className="px-2 font-semibold text-base text-slate-600">{title}</legend>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">{children}</div>
+    </fieldset>
+);
+
+const FormInput: React.FC<{
+    label: string, 
+    name: keyof Student, 
+    value: any, 
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void,
+    required?: boolean,
+    type?: string
+}> = ({label, name, value, onChange, required=false, type="text"}) => (
+    <div>
+        <label className="block text-sm font-medium text-slate-700">{label}</label>
+        <input type={type} name={name} value={value || ''} onChange={onChange} required={required} className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm"/>
+    </div>
+);
+
+const FormSelect: React.FC<{
+    label: string, 
+    name: keyof Student, 
+    value: any, 
+    onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void,
+    options: readonly string[] | string[]
+}> = ({label, name, value, onChange, options}) => (
+     <div>
+        <label className="block text-sm font-medium text-slate-700">{label}</label>
+        <select name={name} value={value || ''} onChange={onChange} className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+            <option value="">Select...</option>
+            {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+        </select>
+    </div>
+);
+
+// --- Student Database Tab Components ---
+const ProfileTabContent = React.memo(({ formData, onChange }: { formData: Omit<Student, 'id'>, onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void }) => (
+    <div className="space-y-6 animate-fade-in">
+        <FormSection title="Personal Information">
+            <FormInput label="First Name" name="firstName" value={formData.firstName} onChange={onChange} required/>
+            <FormInput label="Paternal Last Name" name="paternalLastName" value={formData.paternalLastName} onChange={onChange} required/>
+            <FormInput label="Maternal Last Name" name="maternalLastName" value={formData.maternalLastName} onChange={onChange}/>
+            <FormInput label="Date of Birth" name="dob" value={formData.dob} onChange={onChange} type="date"/>
+            <FormInput label="Nationality" name="nationality" value={formData.nationality} onChange={onChange}/>
+            <FormSelect label="Sex" name="sex" value={formData.sex} onChange={onChange} options={['Male', 'Female', 'Other']}/>
+            <FormSelect label="COVID Vaccine" name="covidVaccine" value={formData.covidVaccine} onChange={onChange} options={['Yes', 'No', 'Unknown']}/>
+            <FormInput label="CURP" name="curp" value={formData.curp} onChange={onChange}/>
+        </FormSection>
+        <FormSection title="Contact & Professional">
+            <FormInput label="Mobile Phone" name="mobilePhone" value={formData.mobilePhone} onChange={onChange} required/>
+            <FormInput label="Home Phone" name="homePhone" value={formData.homePhone} onChange={onChange}/>
+            <FormInput label="Profession" name="profession" value={formData.profession} onChange={onChange}/>
+            <FormInput label="Education Level" name="educationLevel" value={formData.educationLevel} onChange={onChange}/>
+            <FormInput label="Allergies" name="allergies" value={formData.allergies} onChange={onChange}/>
+        </FormSection>
+        <FormSection title="Address">
+            <FormInput label="Street" name="addressStreet" value={formData.addressStreet} onChange={onChange}/>
+            <FormInput label="Colonia" name="addressColonia" value={formData.addressColonia} onChange={onChange}/>
+            <FormInput label="Delegacion" name="addressDelegacion" value={formData.addressDelegacion} onChange={onChange}/>
+            <FormInput label="Postal Code" name="addressCp" value={formData.addressCp} onChange={onChange}/>
+        </FormSection>
+    </div>
+));
+
+const CourseFinanceTabContent = React.memo(({ formData, onChange, transactions, studentId }: { formData: Omit<Student, 'id'>, onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void, transactions: Transaction[], studentId: string | null }) => (
+    <div className="space-y-6 animate-fade-in">
+        <FormSection title="Course Information">
+            <FormInput label="Course Name" name="course" value={formData.course} onChange={onChange}/>
+            <FormInput label="Course Duration" name="courseDuration" value={formData.courseDuration} onChange={onChange}/>
+            <FormInput label="Total Classes" name="totalClasses" value={formData.totalClasses} onChange={onChange}/>
+            <FormInput label="Start Date" name="startDate" value={formData.startDate} onChange={onChange} type="date"/>
+            <FormInput label="End Date" name="endDate" value={formData.endDate} onChange={onChange} type="date"/>
+            <FormInput label="Registration Date" name="registrationDate" value={formData.registrationDate} onChange={onChange} type="date"/>
+        </FormSection>
+        <FormSection title="Financial & Payment Information">
+            <FormInput label="Registration Cost" name="registrationCost" value={formData.registrationCost} onChange={onChange}/>
+            <FormInput label="Total Cost" name="totalCost" value={formData.totalCost} onChange={onChange}/>
+            <FormInput label="Monthly Payment" name="monthlyPayment" value={formData.monthlyPayment} onChange={onChange}/>
+            <FormInput label="Cash Payment" name="cashPayment" value={formData.cashPayment} onChange={onChange}/>
+            <FormInput label="Down Payment" name="downPayment" value={formData.downPayment} onChange={onChange}/>
+            <FormInput label="Payment Date" name="paymentDate" value={formData.paymentDate} onChange={onChange} type="date"/>
+            <FormSelect label="Payment Status" name="paymentStatus" value={formData.paymentStatus} onChange={onChange} options={['Paid', 'Pending', 'Partial']}/>
+            <FormSelect label="Diploma Status" name="diplomaStatus" value={formData.diplomaStatus} onChange={onChange} options={['Available', 'Issued', 'Not Available']}/>
+        </FormSection>
+        <FormSection title="Financial History">
+            <div className="col-span-full max-h-60 overflow-y-auto pr-2">
+                {(() => {
+                    const studentTransactions = transactions.filter(t => t.studentId === studentId).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                    if (studentTransactions.length === 0) {
+                        return <p className="text-sm text-slate-500">No transactions on file for this student.</p>;
+                    }
+                    return (
+                        <ul className="space-y-2">
+                            {studentTransactions.map(t => (
+                                <li key={t.id} className="flex justify-between items-center p-2 bg-slate-50 rounded-md">
+                                    <div>
+                                        <p className="font-medium text-slate-800 text-sm">{t.description}</p>
+                                        <p className="text-xs text-slate-500">{new Date(t.date).toLocaleString('es-MX')}</p>
+                                    </div>
+                                    <p className={`font-bold text-sm ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
+                                        {t.type === 'income' ? '+' : '-'} {new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(t.amount)}
+                                    </p>
+                                </li>
+                            ))}
+                        </ul>
+                    );
+                })()}
+            </div>
+        </FormSection>
+    </div>
+));
+
+const EmergencyGuardianTabContent = React.memo(({ formData, onChange }: { formData: Omit<Student, 'id'>, onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void }) => (
+    <div className="space-y-6 animate-fade-in">
+        <FormSection title="Emergency Contact">
+            <FormInput label="Name" name="emergencyContactName" value={formData.emergencyContactName} onChange={onChange}/>
+            <FormInput label="Paternal Last Name" name="emergencyContactPaternalLastName" value={formData.emergencyContactPaternalLastName} onChange={onChange}/>
+            <FormInput label="Maternal Last Name" name="emergencyContactMaternalLastName" value={formData.emergencyContactMaternalLastName} onChange={onChange}/>
+            <FormInput label="Date of Birth" name="emergencyContactDob" value={formData.emergencyContactDob} onChange={onChange} type="date"/>
+            <FormInput label="Nationality" name="emergencyContactNationality" value={formData.emergencyContactNationality} onChange={onChange}/>
+            <FormSelect label="Sex" name="emergencyContactSex" value={formData.emergencyContactSex} onChange={onChange} options={['Male', 'Female', 'Other']}/>
+            <FormInput label="Relationship" name="emergencyContactRelationship" value={formData.emergencyContactRelationship} onChange={onChange}/>
+            <FormInput label="Mobile Phone" name="emergencyContactMobilePhone" value={formData.emergencyContactMobilePhone} onChange={onChange}/>
+            <FormInput label="Home Phone" name="emergencyContactHomePhone" value={formData.emergencyContactHomePhone} onChange={onChange}/>
+            <FormInput label="Street" name="emergencyContactAddressStreet" value={formData.emergencyContactAddressStreet} onChange={onChange}/>
+            <FormInput label="Colonia" name="emergencyContactAddressColonia" value={formData.emergencyContactAddressColonia} onChange={onChange}/>
+            <FormInput label="Delegacion" name="emergencyContactAddressDelegacion" value={formData.emergencyContactAddressDelegacion} onChange={onChange}/>
+            <FormInput label="Postal Code" name="emergencyContactAddressCp" value={formData.emergencyContactAddressCp} onChange={onChange}/>
+        </FormSection>
+        <FormSection title="Guardian Information (if minor)">
+            <FormInput label="Name" name="guardianName" value={formData.guardianName} onChange={onChange}/>
+            <FormInput label="Paternal Last Name" name="guardianPaternalLastName" value={formData.guardianPaternalLastName} onChange={onChange}/>
+            <FormInput label="Maternal Last Name" name="guardianMaternalLastName" value={formData.guardianMaternalLastName} onChange={onChange}/>
+            <FormInput label="Date of Birth" name="guardianDob" value={formData.guardianDob} onChange={onChange} type="date"/>
+            <FormInput label="Nationality" name="guardianNationality" value={formData.guardianNationality} onChange={onChange}/>
+            <FormSelect label="Sex" name="guardianSex" value={formData.guardianSex} onChange={onChange} options={['Male', 'Female', 'Other']}/>
+            <FormInput label="Mobile Phone" name="guardianMobilePhone" value={formData.guardianMobilePhone} onChange={onChange}/>
+            <FormInput label="Home Phone" name="guardianHomePhone" value={formData.guardianHomePhone} onChange={onChange}/>
+            <FormInput label="Street" name="guardianAddressStreet" value={formData.guardianAddressStreet} onChange={onChange}/>
+            <FormInput label="Colonia" name="guardianAddressColonia" value={formData.guardianAddressColonia} onChange={onChange}/>
+            <FormInput label="Delegacion" name="guardianAddressDelegacion" value={formData.guardianAddressDelegacion} onChange={onChange}/>
+        </FormSection>
+    </div>
+));
+
+const AttendanceTabContent = React.memo(({ attendance, newRecord, onNewRecordChange, onAdd, onDelete }: {
+    attendance: AttendanceRecord[] | undefined,
+    newRecord: Omit<AttendanceRecord, 'id'>,
+    onNewRecordChange: React.Dispatch<React.SetStateAction<Omit<AttendanceRecord, 'id'>>>,
+    onAdd: (e: React.FormEvent) => void,
+    onDelete: (id: string) => void,
+}) => (
+    <div className="space-y-6 animate-fade-in">
+        <FormSection title="Log New Attendance">
+            <form onSubmit={onAdd} className="col-span-full grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label className="block text-sm font-medium text-slate-700">Date</label>
+                    <input type="date" value={newRecord.date} onChange={e => onNewRecordChange({...newRecord, date: e.target.value})} className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm" required/>
+                </div>
+                <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-slate-700">Topic Covered</label>
+                    <input type="text" placeholder="e.g., Basic strokes on latex" value={newRecord.topic} onChange={e => onNewRecordChange({...newRecord, topic: e.target.value})} className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm" required/>
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-slate-700">Status</label>
+                    <select value={newRecord.status} onChange={e => onNewRecordChange({...newRecord, status: e.target.value as any})} className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                        <option>Present</option><option>Absent</option><option>Excused</option>
+                    </select>
+                </div>
+                 <button type="submit" className="md:col-start-4 w-full px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-semibold hover:bg-indigo-700">Add Log</button>
+            </form>
+        </FormSection>
+        <FormSection title="Attendance History">
+            <div className="col-span-full max-h-80 overflow-y-auto pr-2">
+                {(attendance || []).length === 0 ? <p className="text-sm text-slate-500">No attendance records found.</p> :
+                    <ul className="space-y-3">
+                        {(attendance || []).map(log => (
+                            <li key={log.id} className="p-3 bg-slate-50 rounded-md flex justify-between items-start">
+                                <div>
+                                    <p className="font-medium text-slate-800">{new Date(log.date + 'T12:00:00').toLocaleDateString('en-CA')} - <span className={`font-bold ${log.status === 'Present' ? 'text-green-600' : 'text-red-600'}`}>{log.status}</span></p>
+                                    <p className="text-sm text-slate-600 mt-1">{log.topic}</p>
+                                </div>
+                                <button onClick={() => onDelete(log.id)} className="p-1 rounded-full hover:bg-red-100">{TrashIcon("w-4 h-4 text-red-500")}</button>
+                            </li>
+                        ))}
+                    </ul>
+                }
+            </div>
+        </FormSection>
+    </div>
+));
+
+const DocumentsTabContent = React.memo(({ documents, onUpload, onDelete }: { documents: StudentDocument[] | undefined, onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void, onDelete: (id: string) => void }) => (
+    <div className="space-y-6 animate-fade-in">
+        <FormSection title="Upload Document">
+            <div className="col-span-full">
+                <label className="block text-sm font-medium text-slate-700 mb-2">Select a file (PDF, JPG, PNG)</label>
+                <input type="file" onChange={onUpload} accept=".pdf,.jpg,.jpeg,.png" className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+            </div>
+        </FormSection>
+        <FormSection title="Uploaded Documents">
+            <div className="col-span-full max-h-80 overflow-y-auto pr-2">
+                {(documents || []).length === 0 ? <p className="text-sm text-slate-500">No documents uploaded.</p> :
+                    <ul className="space-y-3">
+                        {(documents || []).map(doc => (
+                            <li key={doc.id} className="p-3 bg-slate-50 rounded-md flex justify-between items-center">
+                                <div className="flex items-center gap-3">
+                                    {FileIcon("w-6 h-6 text-slate-500")}
+                                    <div>
+                                        <a href={doc.dataUrl} download={doc.name} className="font-medium text-indigo-600 hover:underline">{doc.name}</a>
+                                        <p className="text-xs text-slate-500">{doc.type}</p>
+                                    </div>
+                                </div>
+                                <button onClick={() => onDelete(doc.id)} className="p-1 rounded-full hover:bg-red-100">{TrashIcon("w-4 h-4 text-red-500")}</button>
+                            </li>
+                        ))}
+                    </ul>
+                }
+            </div>
+        </FormSection>
+    </div>
+));
+
+const SignatureDiplomaTabContent = React.memo(({ signature, onSignatureEnd, onDiplomaUpload, diplomaFile, onDiplomaDelete }: { signature: string | undefined, onSignatureEnd: (dataUrl: string) => void, onDiplomaUpload: (e: React.ChangeEvent<HTMLInputElement>) => void, diplomaFile: {name: string, dataUrl: string} | undefined, onDiplomaDelete: () => void }) => {
+    const sigPadRef = useRef<HTMLCanvasElement>(null);
+    return (
+        <div className="space-y-6 animate-fade-in">
+            <FormSection title="Official Signature on File">
+                <div className="col-span-full flex flex-col items-center">
+                    <SignaturePad ref={sigPadRef} width={400} height={200} onEnd={onSignatureEnd} initialData={signature}/>
+                    <button onClick={() => { const canvas = sigPadRef.current; if (canvas) { const ctx = canvas.getContext('2d'); ctx?.clearRect(0,0,canvas.width,canvas.height); onSignatureEnd(''); } }} className="mt-2 text-sm text-indigo-600 hover:underline">Clear</button>
+                </div>
+            </FormSection>
+            <FormSection title="Diploma">
+                <div className="col-span-full">
+                    {diplomaFile ? (
+                        <div className="p-3 bg-slate-50 rounded-md flex justify-between items-center">
+                             <a href={diplomaFile.dataUrl} download={diplomaFile.name} className="font-medium text-indigo-600 hover:underline">{diplomaFile.name}</a>
+                             <button onClick={onDiplomaDelete} className="p-1 rounded-full hover:bg-red-100">{TrashIcon("w-4 h-4 text-red-500")}</button>
+                        </div>
+                    ) : (
+                        <div>
+                             <label className="block text-sm font-medium text-slate-700 mb-2">Upload Final Diploma</label>
+                             <input type="file" onChange={onDiplomaUpload} accept=".pdf,.jpg,.jpeg,.png" className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+                        </div>
+                    )}
+                </div>
+            </FormSection>
+        </div>
+    );
+});
+
+const TabButton = React.memo(({ label, isActive, onClick }: { label: string, isActive: boolean, onClick: () => void }) => (
+    <button onClick={onClick} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${isActive ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700'}`}>
+        {label}
+    </button>
+));
+
+
+export const StudentDatabaseApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
+    const [students, setStudents] = useState<Student[]>([]);
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+    const [formData, setFormData] = useState<Omit<Student, 'id'>>(emptyStudent);
+    const [searchQuery, setSearchQuery] = useState('');
+    const debouncedSearchQuery = useDebounce(searchQuery, 300);
+    const [activeTab, setActiveTab] = useState('Profile');
+    const [newAttendanceRecord, setNewAttendanceRecord] = useState<Omit<AttendanceRecord, 'id'>>({ date: new Date().toISOString().slice(0,10), course: '', topic: '', status: 'Present' });
+
+    useEffect(() => {
+        if (!fs) return;
+        const dir = findNodeByPath(fs, APPOINTMENTS_FILE_PATH);
+        
+        const studentsFile = dir?.children.find(f => f.name === STUDENTS_FILE_NAME && f.type === 'file') as FileNode | undefined;
+        if (studentsFile) {
+            try { 
+                const loadedStudents = JSON.parse(studentsFile.content);
+                if (Array.isArray(loadedStudents)) {
+                    setStudents(loadedStudents);
+                    if (loadedStudents.length > 0 && !selectedStudentId) {
+                        setSelectedStudentId(loadedStudents[0].id);
+                    }
+                }
+            } 
+            catch { console.error("Failed to parse students file"); }
+        }
+        
+        const transactionsFile = dir?.children.find(f => f.name === TRANSACTIONS_FILE_NAME && f.type === 'file') as FileNode | undefined;
+        if (transactionsFile) {
+            try { setTransactions(JSON.parse(transactionsFile.content)); }
+            catch { console.error("Failed to parse transactions file"); }
+        }
+
+    }, [fs, selectedStudentId]);
+
+    useEffect(() => {
+        const selectedStudent = students.find(s => s.id === selectedStudentId);
+        if (selectedStudent) {
+            setFormData(selectedStudent);
+        } else {
+            setFormData(emptyStudent);
+        }
+    }, [selectedStudentId, students]);
+
+    const saveStudents = useCallback((updatedStudents: Student[]) => {
+        if (!setFs) return;
+        setStudents(updatedStudents);
+        setFs(currentFs => saveFileToFS(currentFs, APPOINTMENTS_FILE_PATH, STUDENTS_FILE_NAME, JSON.stringify(updatedStudents, null, 2)));
+    }, [setFs]);
+
+    const handleFormChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({...prev, [name]: value}));
+    }, []);
+    
+    const handleAddStudent = () => {
+        const newId = `student-${Date.now()}`;
+        const newStudent = { id: newId, ...emptyStudent, firstName: 'New', paternalLastName: 'Student' };
+        saveStudents([...students, newStudent]);
+        setSelectedStudentId(newId);
+    };
+
+    const handleSave = () => {
+        if (!selectedStudentId) return;
+        const updatedStudents = students.map(s => s.id === selectedStudentId ? { ...formData, id: selectedStudentId } : s);
+        saveStudents(updatedStudents);
+        alert('Student saved!');
+    };
+
+    const handleDelete = () => {
+        if (!selectedStudentId || !window.confirm("Are you sure you want to delete this student? This cannot be undone.")) return;
+        const updatedStudents = students.filter(s => s.id !== selectedStudentId);
+        saveStudents(updatedStudents);
+        setSelectedStudentId(updatedStudents[0]?.id || null);
+    };
+
+    const filteredStudents = useMemo(() => {
+        return students.filter(student => 
+            `${student.firstName} ${student.paternalLastName}`.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
+        ).sort((a,b) => a.firstName.localeCompare(b.firstName));
+    }, [debouncedSearchQuery, students]);
+    
+    // --- Handlers for new features ---
+
+    const handleAddAttendance = (e: React.FormEvent) => {
+        e.preventDefault();
+        const updatedStudent = { ...formData, attendance: [...(formData.attendance || []), { id: `att-${Date.now()}`, ...newAttendanceRecord }] };
+        setFormData(updatedStudent);
+        setNewAttendanceRecord({ date: new Date().toISOString().slice(0,10), course: '', topic: '', status: 'Present' });
+    };
+    
+    const handleDeleteAttendance = (id: string) => {
+        const updatedStudent = { ...formData, attendance: (formData.attendance || []).filter(att => att.id !== id) };
+        setFormData(updatedStudent);
+    };
+    
+    const handleUploadDocument = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const newDoc: StudentDocument = { id: `doc-${Date.now()}`, name: file.name, type: file.type, dataUrl: event.target?.result as string };
+            setFormData(prev => ({ ...prev, documents: [...(prev.documents || []), newDoc]}));
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleDeleteDocument = (id: string) => {
+        setFormData(prev => ({ ...prev, documents: (prev.documents || []).filter(doc => doc.id !== id) }));
+    };
+    
+    const handleSignatureEnd = (dataUrl: string) => {
+        setFormData(prev => ({...prev, signature: dataUrl }));
+    };
+
+    const handleDiplomaUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            setFormData(prev => ({ ...prev, diplomaFile: { name: file.name, dataUrl: event.target?.result as string }}));
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleDeleteDiploma = () => {
+        setFormData(prev => ({...prev, diplomaFile: undefined }));
+    };
+
+    const renderTabContent = () => {
+        switch(activeTab) {
+            case 'Profile': return <ProfileTabContent formData={formData} onChange={handleFormChange} />;
+            case 'Course & Finance': return <CourseFinanceTabContent formData={formData} onChange={handleFormChange} transactions={transactions} studentId={selectedStudentId}/>;
+            case 'Guardian & Emergency': return <EmergencyGuardianTabContent formData={formData} onChange={handleFormChange} />;
+            case 'Attendance': return <AttendanceTabContent attendance={formData.attendance} newRecord={newAttendanceRecord} onNewRecordChange={setNewAttendanceRecord} onAdd={handleAddAttendance} onDelete={handleDeleteAttendance}/>;
+            case 'Documents': return <DocumentsTabContent documents={formData.documents} onUpload={handleUploadDocument} onDelete={handleDeleteDocument} />;
+            case 'Signature & Diploma': return <SignatureDiplomaTabContent signature={formData.signature} onSignatureEnd={handleSignatureEnd} onDiplomaUpload={handleDiplomaUpload} diplomaFile={formData.diplomaFile} onDiplomaDelete={handleDeleteDiploma}/>;
+            default: return null;
+        }
+    };
+    
+    const tabs = ['Profile', 'Course & Finance', 'Guardian & Emergency', 'Attendance', 'Documents', 'Signature & Diploma'];
+    
+    return (
+        <div className="w-full h-full flex bg-slate-100 text-slate-800 font-sans text-sm">
+            <aside className="w-64 flex-shrink-0 bg-white border-r border-slate-200 flex flex-col">
+                <div className="p-4 border-b">
+                    <input type="search" placeholder="Search students..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-md text-sm"/>
+                </div>
+                <div className="flex-grow overflow-y-auto">
+                    {filteredStudents.map(student => (
+                        <button key={student.id} onClick={() => setSelectedStudentId(student.id)} className={`w-full text-left p-3 flex items-center gap-3 ${selectedStudentId === student.id ? 'bg-indigo-50 text-indigo-700' : 'hover:bg-slate-50'}`}>
+                           <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-500">{student.firstName[0]}{student.paternalLastName[0]}</div>
+                           <span className="font-semibold">{student.firstName} {student.paternalLastName}</span>
+                        </button>
+                    ))}
+                </div>
+                <div className="p-2 border-t">
+                    <button onClick={handleAddStudent} className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md text-sm font-semibold hover:bg-indigo-700">Add New Student</button>
+                </div>
+            </aside>
+            <main className="flex-grow flex flex-col">
+                <header className="flex justify-between items-center p-4 bg-white border-b border-slate-200 flex-shrink-0">
+                    <h2 className="text-xl font-bold text-slate-800">{formData.firstName} {formData.paternalLastName} {formData.maternalLastName}</h2>
+                    <div className="flex gap-2">
+                        <button onClick={handleDelete} className="px-4 py-2 bg-red-500 text-white rounded-md text-sm font-semibold hover:bg-red-600">Delete</button>
+                        <button onClick={handleSave} className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-semibold hover:bg-blue-700">Save Changes</button>
+                    </div>
+                </header>
+                <div className="border-b border-slate-200 bg-white">
+                    <nav className="flex px-4">
+                        {tabs.map(tab => <TabButton key={tab} label={tab} isActive={activeTab === tab} onClick={() => setActiveTab(tab)} />)}
+                    </nav>
+                </div>
+                <div className="flex-grow p-6 overflow-y-auto">
+                    {selectedStudentId ? renderTabContent() : <div className="text-center text-slate-500">Select or create a student to get started.</div>}
+                </div>
+            </main>
+        </div>
+    );
+};

@@ -22,7 +22,6 @@ export interface AppProps {
 export interface AppConfig {
   id: string;
   title: string;
-  // FIX: Updated icon type to consistently expect a function that takes a className string.
   icon: (className?: string) => JSX.Element;
   component: ComponentType<Partial<AppProps>>; // All apps receive AppProps
   isPinned?: boolean;
@@ -41,6 +40,35 @@ export interface WindowState {
   zIndex: number;
   component: ComponentType<Partial<AppProps>>;
   file?: FileData; // Pass file data to the window
+}
+
+export interface SessionInfo {
+  isAuthenticated: boolean;
+  loginDate: string; // "YYYY-MM-DD"
+  username: 'admin' | 'Fer';
+}
+
+
+// --- New Student Data Sub-types ---
+export interface AttendanceRecord {
+    id: string;
+    date: string;
+    course: string;
+    topic: string;
+    status: 'Present' | 'Absent' | 'Excused';
+}
+
+export interface StudentDocument {
+    id: string;
+    name: string;
+    type: string;
+    dataUrl: string; // base64
+}
+
+export interface LibraryResource {
+    id: string;
+    title: string;
+    assignedDate: string;
 }
 
 // --- Student Database Type ---
@@ -110,6 +138,15 @@ export interface Student {
   diplomaStatus?: 'Available' | 'Issued' | 'Not Available';
   // Signature
   signature?: string; // base64 data URL
+  
+  // --- New Comprehensive Tracking ---
+  attendance?: AttendanceRecord[];
+  documents?: StudentDocument[];
+  libraryResources?: LibraryResource[];
+  diplomaFile?: {
+      name: string;
+      dataUrl: string;
+  };
 }
 
 // --- Check-in Log Type ---
@@ -128,6 +165,8 @@ export interface Transaction {
   description: string;
   amount: number;
   type: 'income' | 'expense';
+  studentId?: string; // Optional: Link transaction to a student
+  studentName?: string; // Optional: For display purposes
 }
 
 // --- Appointment Book Type ---

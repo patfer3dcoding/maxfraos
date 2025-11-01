@@ -1,7 +1,46 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import type { AppProps, Student, Appointment, CheckInLog } from '../types';
-import { SearchIcon, CheckInIcon, WhatsAppIcon, ShareIcon, CloseIcon, MaxfraLogoIcon } from '../components/icons';
+import { SearchIcon, CheckInIcon, WhatsAppIcon, ShareIcon, CloseIcon, MaxfraLogoIcon, MicrophoneIcon } from '../components/icons';
 import { MAXFRA_LOGO_B64 } from '../constants';
+
+// --- Type declarations for Web Speech API ---
+
+interface SpeechRecognition {
+    continuous: boolean;
+    lang: string;
+    interimResults: boolean;
+    maxAlternatives: number;
+    start(): void;
+    stop(): void;
+    onstart: (() => void) | null;
+    onresult: ((event: SpeechRecognitionEvent) => void) | null;
+    onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+    onend: (() => void) | null;
+}
+
+declare var SpeechRecognition: {
+    prototype: SpeechRecognition;
+    new(): SpeechRecognition;
+};
+
+declare global {
+    interface Window {
+        SpeechRecognition: typeof SpeechRecognition;
+        webkitSpeechRecognition: typeof SpeechRecognition;
+    }
+    interface SpeechRecognitionEvent extends Event {
+        results: {
+            [index: number]: {
+                [index: number]: {
+                    transcript: string;
+                }
+            }
+        };
+    }
+    interface SpeechRecognitionErrorEvent extends Event {
+        error: string;
+    }
+}
 
 // --- Filesystem Utilities (duplicated for self-containment, ideally imported) ---
 const findNodeByPath = (root: any, path: string[]): any | null => {
@@ -170,6 +209,8 @@ export const CheckInApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
     const [signingAppointment, setSigningAppointment] = useState<Appointment | null>(null);
     const [confirmationSlipData, setConfirmationSlipData] = useState<{ student: Student, appointment: Appointment, checkInLog: CheckInLog } | null>(null);
+    const [isListening, setIsListening] = useState(false);
+    const recognitionRef = useRef<SpeechRecognition | null>(null);
 
     // --- Data Loading Effect ---
     useEffect(() => {
@@ -207,6 +248,48 @@ export const CheckInApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
         setCheckInLogs(updatedLogs);
         setFs(currentFs => saveFileToFS(currentFs, APPOINTMENTS_FILE_PATH, CHECK_IN_LOG_FILE_NAME, JSON.stringify(updatedLogs, null, 2)));
     }, [setFs]);
+
+    // --- Voice Search Logic ---
+    const handleVoiceSearch = useCallback(() => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("Sorry, your browser does not support voice recognition.");
+            return;
+        }
+
+        if (recognitionRef.current && isListening) {
+            recognitionRef.current.stop();
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognitionRef.current = recognition;
+        recognition.continuous = false;
+        recognition.lang = 'es-MX';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = () => {
+            setIsListening(true);
+        };
+
+        recognition.onresult = (event: SpeechRecognitionEvent) => {
+            const transcript = event.results[0][0].transcript;
+            setSearchQuery(transcript);
+            setSelectedStudent(null);
+        };
+
+        recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+            console.error("Voice recognition error:", event.error);
+            alert(`Voice recognition error: ${event.error}`);
+        };
+
+        recognition.onend = () => {
+            setIsListening(false);
+        };
+
+        recognition.start();
+    }, [isListening]);
 
     // --- Search Logic ---
     const filteredStudents = useMemo(() => {
@@ -384,7 +467,6 @@ export const CheckInApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
                     <h3 id="slip-modal-title" className="text-2xl font-bold mb-4 text-center">Check-in Confirmed!</h3>
                     
                     <div id="confirmation-slip-content" className="border border-gray-300 p-4 rounded-lg w-full bg-white flex flex-col items-center">
-                        {/* FIX: Changed JSX component to function call for MaxfraLogoIcon */}
                         {MaxfraLogoIcon("w-16 h-16 mb-2")}
                         <h4 className="font-bold text-lg text-gray-800 mb-3 text-center">Appointment Slip</h4>
                         <div className="text-sm w-full space-y-1 mb-4">
@@ -409,15 +491,12 @@ export const CheckInApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
 
                     <div className="flex flex-col gap-2 w-full mt-4">
                         <button onClick={() => handleDownloadSlip('jpg')} className="px-4 py-2 bg-blue-500 text-white rounded flex items-center justify-center gap-2">
-                            {/* FIX: Changed JSX component to function call for ShareIcon */}
                             {ShareIcon("w-5 h-5")} Download JPG
                         </button>
                         <button onClick={() => handleDownloadSlip('pdf')} className="px-4 py-2 bg-purple-500 text-white rounded flex items-center justify-center gap-2">
-                             {/* FIX: Changed JSX component to function call for ShareIcon */}
                              {ShareIcon("w-5 h-5")} Save as PDF
                         </button>
                         <button onClick={handleShareWhatsApp} className="px-4 py-2 bg-green-500 text-white rounded flex items-center justify-center gap-2">
-                             {/* FIX: Changed JSX component to function call for WhatsAppIcon */}
                              {WhatsAppIcon("w-5 h-5")} Share on WhatsApp
                         </button>
                         <button onClick={onClose} className="px-4 py-2 bg-gray-300 rounded mt-2">Close</button>
@@ -430,26 +509,29 @@ export const CheckInApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
     return (
         <div className="w-full h-full flex flex-col bg-gray-100 text-black p-4 select-none font-sans relative">
             <h2 className="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-2">
-                {/* FIX: Changed JSX component to function call for CheckInIcon */}
                 {CheckInIcon("w-8 h-8")} Student Check-in
             </h2>
 
             <div className="relative mb-4">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    {/* FIX: Changed JSX component to function call for SearchIcon */}
                     {SearchIcon("text-gray-400")}
                 </div>
                 <input
                     type="text"
-                    placeholder="Search by ID, name, or phone number..."
+                    placeholder={isListening ? "Listening..." : "Search by ID, name, or phone number..."}
                     value={searchQuery}
                     onChange={(e) => {
                         setSearchQuery(e.target.value);
                         setSelectedStudent(null);
                     }}
-                    className="w-full pl-10 pr-4 py-2 border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                    className="w-full pl-10 pr-10 py-2 border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                     aria-label="Search student"
                 />
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                    <button onClick={handleVoiceSearch} className={`p-1 rounded-full ${isListening ? 'bg-red-500 text-white animate-pulse' : 'hover:bg-gray-200'}`} aria-label="Search by voice">
+                        {MicrophoneIcon("w-5 h-5")}
+                    </button>
+                </div>
                 {searchQuery && filteredStudents.length > 0 && !selectedStudent && (
                     <div className="absolute top-full mt-2 w-full bg-white border border-gray-200 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
                         {filteredStudents.map(student => (

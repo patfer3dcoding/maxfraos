@@ -264,7 +264,6 @@ const App: React.FC = () => {
     <div className="h-screen w-screen bg-cover bg-center" style={{ backgroundImage: backgroundImageUrl }}>
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-none">
         <div className="flex items-center gap-4">
-            {/* FIX: Call WindowsLogoIcon as a function */}
             {WindowsLogoIcon("h-24 w-24")}
             <img src={MAXFRA_LOGO_B64} alt="Maxfra Academy Logo" className={`h-32 w-32 opacity-90 ${backgroundId === 'matrix' ? 'invert' : ''}`} />
         </div>
