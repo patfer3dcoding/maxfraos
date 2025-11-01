@@ -671,6 +671,103 @@ const AppointmentDetailModal = ({ appointmentGroup, studentsById, onClose, onUpd
     );
 };
 
+const AppointmentConfirmationModal = ({ appointment, onClose }: { appointment: Appointment, onClose: () => void }) => {
+    const confirmationNumber = `MAXFRA-${appointment.id.slice(-6).toUpperCase()}`;
+
+    const handleDownload = async () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        const loadImg = (src: string): Promise<HTMLImageElement> => new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = reject;
+            img.src = src;
+        });
+
+        const logoImg = await loadImg(MAXFRA_LOGO_B64);
+
+        canvas.width = 400;
+        canvas.height = 350;
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Header
+        ctx.drawImage(logoImg, 20, 20, 50, 50);
+        ctx.fillStyle = '#1a202c';
+        ctx.font = 'bold 18px sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText('Appointment Confirmed', canvas.width - 20, 50);
+
+        // Details
+        ctx.textAlign = 'left';
+        let y = 100;
+        const drawLine = (label: string, value: string) => {
+            ctx.font = 'bold 14px sans-serif';
+            ctx.fillText(label, 20, y);
+            ctx.font = '14px sans-serif';
+            ctx.fillText(value, 130, y);
+            y += 25;
+        };
+
+        drawLine('Student:', appointment.studentName);
+        drawLine('Service:', appointment.details);
+        drawLine('Date:', new Date(appointment.date + 'T12:00:00').toLocaleDateString('en-CA'));
+        drawLine('Time:', appointment.time);
+        drawLine('Location:', appointment.location);
+        drawLine('Teacher:', appointment.teacher);
+        drawLine('Confirmation #:', confirmationNumber);
+
+        const link = document.createElement('a');
+        link.download = `appointment_confirmation_${appointment.studentName.replace(' ', '_')}.jpg`;
+        link.href = canvas.toDataURL('image/jpeg');
+        link.click();
+    };
+    
+    const handleShareWhatsApp = () => {
+        const message = `*Maxfra Academy Appointment Confirmation*\n\n` +
+                        `Hello ${appointment.studentName}! Your appointment is confirmed.\n\n` +
+                        `*Details:*\n` +
+                        `*Service:* ${appointment.details}\n` +
+                        `*Date:* ${new Date(appointment.date + 'T12:00:00').toLocaleDateString('en-CA')}\n` +
+                        `*Time:* ${appointment.time}\n` +
+                        `*Location:* ${appointment.location}\n` +
+                        `*Teacher:* ${appointment.teacher}\n` +
+                        `*Confirmation #:* ${confirmationNumber}\n\n` +
+                        `We look forward to seeing you!`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+    };
+
+    return (
+        <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-50 animate-fade-in" onClick={onClose}>
+            <div className="bg-white p-6 rounded-lg text-black w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
+                <div className="flex justify-between items-start">
+                    <h2 className="text-2xl font-bold text-gray-800">Appointment Confirmed!</h2>
+                    <button onClick={onClose} className="p-2 -mt-2 -mr-2 rounded-full hover:bg-gray-200">{CloseIcon()}</button>
+                </div>
+                <div className="mt-4 border-t pt-4 space-y-2 text-gray-700">
+                    <p><strong>Student:</strong> {appointment.studentName}</p>
+                    <p><strong>Service:</strong> {appointment.details}</p>
+                    <p><strong>Date:</strong> {new Date(appointment.date + 'T12:00:00').toLocaleDateString('en-CA')} at {appointment.time}</p>
+                    <p><strong>Confirmation #:</strong> <span className="font-mono bg-gray-100 px-2 py-1 rounded">{confirmationNumber}</span></p>
+                </div>
+                <div className="mt-6 flex flex-col gap-3">
+                     <button onClick={handleDownload} className="w-full px-4 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                         {ShareIcon("w-5 h-5")} Download Confirmation
+                     </button>
+                     <button onClick={handleShareWhatsApp} className="w-full px-4 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition flex items-center justify-center gap-2">
+                         {WhatsAppIcon("w-6 h-6")} Share on WhatsApp
+                     </button>
+                     <button onClick={onClose} className="w-full px-4 py-2 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition mt-2">
+                         Done
+                     </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // --- Calendar View Components ---
 
 const DailyView = React.memo(({ groupedAppointments, onAppointmentClick, onExport }: { groupedAppointments: GroupedAppointment[], onAppointmentClick: (app: GroupedAppointment) => void, onExport: (location: Location) => void }) => {
@@ -816,6 +913,7 @@ export const CalendarApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
     const [view, setView] = useState<CalendarView>('Daily');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [viewingAppointmentId, setViewingAppointmentId] = useState<string | null>(null);
+    const [confirmationData, setConfirmationData] = useState<Appointment | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [showSearchResults, setShowSearchResults] = useState(false);
     const searchRef = useRef<HTMLDivElement>(null);
@@ -900,6 +998,12 @@ export const CalendarApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
     }, [currentDate, appointmentsByDate, view]);
     
     const viewingAppointment = useMemo(() => groupedAppointments.find(g => g.id === viewingAppointmentId), [groupedAppointments, viewingAppointmentId]);
+    
+    const handleSaveNewAppointment = useCallback((newAppointment: Appointment) => {
+        setAppointments(prev => [...prev, newAppointment]);
+        setIsModalOpen(false);
+        setConfirmationData(newAppointment);
+    }, []);
 
     const handleUpdateAppointment = useCallback((updatedApp: Appointment) => {
         setAppointments(prevApps => prevApps.map(app => app.id === updatedApp.id ? updatedApp : app));
@@ -1112,13 +1216,14 @@ export const CalendarApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
                 {view === 'Weekly' && <WeeklyView currentDate={currentDate} groupedAppointments={groupedAppointments} onAppointmentClick={(group) => setViewingAppointmentId(group.id)} />}
                 {view === 'Monthly' && <MonthlyView currentDate={currentDate} appointmentsByDate={appointmentsByDate} onDateClick={date => { setCurrentDate(date); setView('Daily'); }} />}
             </main>
-            {isModalOpen && <AppointmentModal onClose={() => setIsModalOpen(false)} setAppointments={setAppointments} appointments={appointments} students={students} date={currentDate} />}
+            {isModalOpen && <AppointmentModal onClose={() => setIsModalOpen(false)} onSave={handleSaveNewAppointment} appointments={appointments} students={students} date={currentDate} />}
             {viewingAppointment && <AppointmentDetailModal appointmentGroup={viewingAppointment} studentsById={studentsById} onClose={() => setViewingAppointmentId(null)} onUpdateAppointment={handleUpdateAppointment} onDeleteAppointmentGroup={handleDeleteAppointmentGroup} onPrintSave={handlePrintSaveAppointment}/>}
+            {confirmationData && <AppointmentConfirmationModal appointment={confirmationData} onClose={() => setConfirmationData(null)} />}
         </div>
     );
 };
 
-const AppointmentModal = ({ onClose, setAppointments, appointments, students, date }: { onClose: () => void, setAppointments: React.Dispatch<React.SetStateAction<Appointment[]>>, appointments: Appointment[], students: Student[], date: Date }) => {
+const AppointmentModal = ({ onClose, onSave, appointments, students, date }: { onClose: () => void, onSave: (app: Appointment) => void, appointments: Appointment[], students: Student[], date: Date }) => {
     const [entryType, setEntryType] = useState<'database' | 'manual'>('database');
     
     const [formData, setFormData] = useState<Omit<Appointment, 'id'>>({
@@ -1156,9 +1261,7 @@ const AppointmentModal = ({ onClose, setAppointments, appointments, students, da
         }
         
         const newAppointment: Appointment = { id: Date.now().toString(), ...formData };
-        onClose();
-        setAppointments(prev => [...prev, newAppointment]);
-        alert("Appointment saved!");
+        onSave(newAppointment);
     };
 
     const handleStudentSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -1173,11 +1276,17 @@ const AppointmentModal = ({ onClose, setAppointments, appointments, students, da
         setFormData({ ...formData, studentId: '', studentName: e.target.value });
     }
 
+    const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const newType = e.target.value as 'Course' | 'Special';
+        const newDetailOptions = newType === 'Course' ? COURSES : SPECIALS;
+        setFormData(prev => ({
+            ...prev,
+            type: newType,
+            details: newDetailOptions[0],
+        }));
+    };
+
     const detailOptions = formData.type === 'Course' ? COURSES : SPECIALS;
-    
-    useEffect(() => {
-        setFormData(f => ({ ...f, details: detailOptions[0] as string }));
-    }, [formData.type]);
 
     return (
         <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -1199,7 +1308,7 @@ const AppointmentModal = ({ onClose, setAppointments, appointments, students, da
                     )}
 
                     <select value={formData.location} onChange={e => setFormData({...formData, location: e.target.value as any})} className="w-full p-2 border rounded">{LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}</select>
-                    <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value as any})} className="w-full p-2 border rounded"><option value="Course">Course</option><option value="Special">Special</option></select>
+                    <select value={formData.type} onChange={handleTypeChange} className="w-full p-2 border rounded"><option value="Course">Course</option><option value="Special">Special</option></select>
                     <select value={formData.details} onChange={e => setFormData({...formData, details: e.target.value as any})} className="w-full p-2 border rounded">{detailOptions.map(d => <option key={d} value={d}>{d}</option>)}</select>
                     <select value={formData.teacher} onChange={e => setFormData({...formData, teacher: e.target.value as any})} className="w-full p-2 border rounded">{TEACHERS.map(t => <option key={t} value={t}>{t}</option>)}</select>
                     <div className="flex gap-4">

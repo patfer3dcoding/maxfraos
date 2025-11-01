@@ -15,5 +15,111 @@ import {
     ImageViewerApp
 } from './apps/index';
 
-// MAXFRA Logo Base64 - PNG with transparent background
-export const MAXFRA_LOGO_B64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAADsAAAA7ABJht5qgAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAXfSURBVPic7Z1viFxVTMd/584666xiIkjQoJ8yCF6UgmChwUuCYpGgoBU82SiEnwhilza0wYc2JVkFqUWLp1pL86C4qRBET4JQtSgj0IIHwYt2C0H4A/GTrNSVqJnRNM/u+2bO3Xfnzsy5d86cO++5M/Of/jJ37j1n5jtz5sw5MxqwJp3AJqB1gH5AswNfAd/gc5CpxA18G7CbxHwDXAD2BBYCaxK5aFnxH3An8APQCfQDbSg/PqfA/cCTgZuBdwGXxHXxLTAamAjsBL6qH+AWYElG/dG+gO3AHcB6YAa5GcCbXyL+C/AH0AVsB9YDxwO/xH1fAKeBLSk0/L8R2Blg/2+BpwJjkhk2fA18BvQCtQB/BRYA9wNDaPQftQTgZmAeMAA4DLgYmJLI1qV/wF3AD8ADwGbgiwS+wG3AfcB1wDPAeGCSQK0vAW8CfwL9wFfAGcCgwDEJXCfM3AW8BPwJ7Ac2AWcB44FxJDB8+AngV+D/R+B94GpgjAxGbwDeBn4BLgG2A/OBccAYGQy/A7gR+GcC/wbcCYyZwPD7gB+B3xTwB4C/m0QkMHy/gZ8J/F7gl4A/gB+ZwPB/gV8T+L/ATwN/A+NmMPx/YPgE/gK8L5Xg7QZ8JfB7gR8G/gC+ZwzDR5uBnwH8VODHAr8I/GaMwdcF/gzwY4EfhN8P/GEYg4+zge+A/xTwI4Bfg98L/GqMwecZwU+B/xTwI4Bfg98L/GEYg4+zge+A/xTwI4Bfg98L/GqMwecZwU+B/xTwI4Bfg98L/GEYg4+zge+A/xTwI4Bfg98L/GqMwecZwU+B/xTwI4Bfg98L/GEYg4+zge+A/xTwI4Bfg98L/GqMwecZwU+B/xTwI4Bfg98L/GEYg4
+// MAXFRA Logo Base64 - Replaced with a placeholder SVG to fix syntax error.
+export const MAXFRA_LOGO_B64 = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDY0IDY0Ij4KICA8cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIGZpbGw9IiMwMDc4RDciLz4KICA8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJTZWdvZSBVSSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI0MCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIj5NPC90ZXh0Pgo8L3N2Zz4=';
+
+// Placeholder data for the library app
+export const LIBRARY_IMAGES = [
+    { src: 'https://images.unsplash.com/photo-1599388136367-29348a93442a?q=80&w=870&auto=format&fit=crop', title: 'Eyebrow Design' },
+    { src: 'https://images.unsplash.com/photo-1556228852-50a3ac525f54?q=80&w=870&auto=format&fit=crop', title: 'Color Theory' },
+    { src: 'https://images.unsplash.com/photo-1580920469279-844449171939?q=80&w=870&auto=format&fit=crop', title: 'Microblading Strokes' },
+    { src: 'https://images.unsplash.com/photo-1596701062351-8c2c14d1fdd0?q=80&w=774&auto=format&fit=crop', title: 'Lash Application' },
+    { src: 'https://images.unsplash.com/photo-1584444263679-a4708b76e273?q=80&w=870&auto=format&fit=crop', title: 'Sanitization' },
+    { src: 'https://images.unsplash.com/photo-1552693673-1bf958298935?q=80&w=870&auto=format&fit=crop', title: 'Skin Types' },
+    { src: 'https://images.unsplash.com/photo-1616394584742-a8c6c55a5b10?q=80&w=870&auto=format&fit=crop', title: 'Henna Mixing' },
+    { src: 'https://images.unsplash.com/photo-1605333152739-2c78a3c94254?q=80&w=870&auto=format&fit=crop', title: 'Advanced Techniques' }
+];
+
+// Application configurations
+export const APPS: AppConfig[] = [
+  {
+    id: 'studentDatabase',
+    title: 'Student Database',
+    icon: Icons.StudentDatabaseIcon,
+    component: StudentDatabaseApp,
+    isPinned: true,
+    defaultSize: { width: 1200, height: 720 },
+  },
+  {
+    id: 'calendar',
+    title: 'Appointment Book',
+    icon: Icons.CalendarIcon,
+    component: CalendarApp,
+    isPinned: true,
+    defaultSize: { width: 1280, height: 800 },
+  },
+  {
+    id: 'checkIn',
+    title: 'Student Check-in',
+    icon: Icons.CheckInIcon,
+    component: CheckInApp,
+    defaultSize: { width: 500, height: 700 },
+  },
+  {
+    id: 'calculator',
+    title: 'Finance Calculator',
+    icon: Icons.CalculatorIcon,
+    component: CalculatorApp,
+    defaultSize: { width: 800, height: 500 },
+  },
+  {
+    id: 'clipCalculator',
+    title: 'Clip Calculator',
+    icon: Icons.ClipIcon,
+    component: ClipCalculatorApp,
+    defaultSize: { width: 450, height: 750 },
+  },
+  {
+    id: 'browser',
+    title: 'Maxfra AI Browser',
+    icon: Icons.MaxfraAIBrowserIcon,
+    component: MaxfraAiBrowserApp,
+    isPinned: true,
+    defaultSize: { width: 1024, height: 768 },
+  },
+  {
+    id: 'maxfraOfficeSuite',
+    title: 'Maxfra Office Suite',
+    icon: Icons.MaxfraOfficeSuiteIcon,
+    component: MaxfraOfficeSuiteApp,
+    defaultSize: { width: 720, height: 500 },
+  },
+  {
+    id: 'library',
+    title: 'Maxfra Library',
+    icon: Icons.LibraryIcon,
+    component: MaxfraLibraryApp,
+    defaultSize: { width: 900, height: 600 },
+  },
+  {
+    id: 'notepad',
+    title: 'Notepad',
+    icon: Icons.NotepadIcon,
+    component: NotepadApp,
+    defaultSize: { width: 500, height: 400 },
+  },
+  {
+    id: 'fileExplorer',
+    title: 'File Explorer',
+    icon: Icons.FileExplorerIcon,
+    component: FileExplorerApp,
+    isPinned: true,
+    defaultSize: { width: 800, height: 600 },
+  },
+  {
+    id: 'settings',
+    title: 'Settings',
+    icon: Icons.SettingsIcon,
+    component: SettingsApp,
+    defaultSize: { width: 500, height: 400 },
+  },
+  // ImageViewer is not a launchable app from desktop/start menu
+  // It's opened by other apps, so it's defined here for window creation.
+  {
+    id: 'imageViewer',
+    title: 'Image Viewer',
+    icon: Icons.ImageIcon,
+    component: ImageViewerApp,
+    defaultSize: { width: 800, height: 600 },
+  }
+];

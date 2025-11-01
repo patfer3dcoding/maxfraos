@@ -236,17 +236,23 @@ export const CheckInApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
         }
     }, [fs]);
 
-    // --- Data Saving Functions ---
-    const saveAppointments = useCallback((updatedAppointments: Appointment[]) => {
+    // --- Data Saving Functions (Refactored to use functional updates) ---
+    const saveAppointments = useCallback((updater: (prevApps: Appointment[]) => Appointment[]) => {
         if (!setFs) return;
-        setAppointments(updatedAppointments);
-        setFs(currentFs => saveFileToFS(currentFs, APPOINTMENTS_FILE_PATH, APPOINTMENTS_FILE_NAME, JSON.stringify(updatedAppointments, null, 2)));
+        setAppointments(prevApps => {
+            const newApps = updater(prevApps);
+            setFs(currentFs => saveFileToFS(currentFs, APPOINTMENTS_FILE_PATH, APPOINTMENTS_FILE_NAME, JSON.stringify(newApps, null, 2)));
+            return newApps;
+        });
     }, [setFs]);
 
-    const saveCheckInLogs = useCallback((updatedLogs: CheckInLog[]) => {
+    const saveCheckInLogs = useCallback((updater: (prevLogs: CheckInLog[]) => CheckInLog[]) => {
         if (!setFs) return;
-        setCheckInLogs(updatedLogs);
-        setFs(currentFs => saveFileToFS(currentFs, APPOINTMENTS_FILE_PATH, CHECK_IN_LOG_FILE_NAME, JSON.stringify(updatedLogs, null, 2)));
+        setCheckInLogs(prevLogs => {
+            const newLogs = updater(prevLogs);
+            setFs(currentFs => saveFileToFS(currentFs, APPOINTMENTS_FILE_PATH, CHECK_IN_LOG_FILE_NAME, JSON.stringify(newLogs, null, 2)));
+            return newLogs;
+        });
     }, [setFs]);
 
     // --- Voice Search Logic ---
@@ -320,8 +326,11 @@ export const CheckInApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
     const handleCheckIn = useCallback((appointment: Appointment, signature: string) => {
         if (!selectedStudent) return;
 
-        const updatedAppointment: Appointment = { ...appointment, attendance: 'Present' };
-        saveAppointments(appointments.map(app => app.id === appointment.id ? updatedAppointment : app));
+        const updatedAppointment: Appointment = { ...appointment, attendance: 'Present', signature: signature };
+        
+        saveAppointments(prevApps => 
+            prevApps.map(app => app.id === appointment.id ? updatedAppointment : app)
+        );
 
         const newCheckInLog: CheckInLog = {
             id: `checkin-${Date.now()}`,
@@ -330,12 +339,12 @@ export const CheckInApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
             signature: signature,
             appointmentId: appointment.id,
         };
-        saveCheckInLogs([...checkInLogs, newCheckInLog]);
+        saveCheckInLogs(prevLogs => [...prevLogs, newCheckInLog]);
 
         setSigningAppointment(null);
         setConfirmationSlipData({ student: selectedStudent, appointment: updatedAppointment, checkInLog: newCheckInLog });
 
-    }, [selectedStudent, appointments, checkInLogs, saveAppointments, saveCheckInLogs]);
+    }, [selectedStudent, saveAppointments, saveCheckInLogs]);
 
     // --- Confirmation Slip Actions ---
     const handleDownloadSlip = useCallback(async (format: 'jpg' | 'pdf') => {
@@ -433,6 +442,14 @@ export const CheckInApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
     // --- UI Render ---
     const SignatureModal = ({ appointment, onSave, onCancel }: { appointment: Appointment, onSave: (sig: string) => void, onCancel: () => void }) => {
         const signatureRef = useRef<HTMLCanvasElement>(null);
+        
+        const isCanvasBlank = (canvas: HTMLCanvasElement): boolean => {
+            const blank = document.createElement('canvas');
+            blank.width = canvas.width;
+            blank.height = canvas.height;
+            return canvas.toDataURL() === blank.toDataURL();
+        };
+
         return (
             <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-[60]" onClick={onCancel}>
                 <div className="bg-white p-6 rounded-lg text-black w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()} aria-modal="true" role="dialog" aria-labelledby="signature-modal-title">
@@ -448,9 +465,12 @@ export const CheckInApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) => {
                             }
                         }} className="px-4 py-2 bg-gray-200 rounded">Clear</button>
                         <button onClick={() => {
-                            const signature = signatureRef.current?.toDataURL();
-                            if (signature) onSave(signature);
-                            else alert("Please provide a signature.");
+                            const canvas = signatureRef.current;
+                            if (canvas && !isCanvasBlank(canvas)) {
+                                onSave(canvas.toDataURL());
+                            } else {
+                                alert("Please provide a signature.");
+                            }
                         }} className="px-4 py-2 bg-blue-500 text-white rounded">Confirm Check-in</button>
                     </div>
                 </div>

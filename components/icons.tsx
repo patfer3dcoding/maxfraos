@@ -129,8 +129,10 @@ export const CheckInIcon = (className: string = 'w-8 h-8') => (
   </svg>
 );
 export const ClipIcon = (className: string = 'w-8 h-8') => (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zM8.5 15H6.3l1.9-3.3c.1-.2.1-.4 0-.6L6.3 8h2.2l1.2 2.1c.1.2.1.4 0 .6L8.5 15zm6.2-1.1l-1.9-3.3c-.1-.2-.1-.4 0-.6l1.9-3.3H17l-2.2 3.9c-.1.2-.1.4 0 .6L17 15h-2.3z"/>
+    <svg className={className} viewBox="0 0 250 82.3" fill="#00aeef" xmlns="http://www.w3.org/2000/svg">
+        <path d="M51.1 36.8c0-11.4-7.9-19.4-19.1-19.4H0v64.1h15.4V56.2h16.7c11.2 0 19-8 19-19.4zm-15.4 0c0 3.1-2.4 5.3-5.7 5.3H15.4V31.5h14.7c3.3 0 5.6 2.2 5.6 5.3z"/>
+        <path d="M83.9 81.5V17.4h15.4v64.1zM133.5 17.4l-23.7 64.1h16.8l5.2-14.7h29.8l5.2 14.7h16.8L159.9 17.4h-15.5zm-5.6 42.4l11-31.5 11 31.5z"/>
+        <path d="M250 36.8c0-11.4-7.9-19.4-19.1-19.4h-31.9v64.1h15.4V56.2h16.7c11.2 0 19-8 19-19.4zm-15.4 0c0 3.1-2.4 5.3-5.7 5.3h-14.7V31.5h14.7c3.3 0 5.6 2.2 5.6 5.3z"/>
     </svg>
 );
 export const FileExplorerIcon = (className: string = 'w-8 h-8') => (

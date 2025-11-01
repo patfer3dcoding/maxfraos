@@ -28,7 +28,7 @@ const StartMenu: React.FC<StartMenuProps> = ({ isOpen, apps, openApp, closeStart
   if (!isOpen) return null;
 
   return (
-    <div ref={menuRef} className="absolute bottom-12 left-0 w-96 h-[600px] bg-gray-800/80 backdrop-blur-xl text-white flex flex-col shadow-2xl rounded-tr-lg">
+    <div ref={menuRef} className="fixed bottom-12 left-0 w-96 h-[600px] bg-gray-800/80 backdrop-blur-xl text-white flex flex-col shadow-2xl rounded-tr-lg z-40">
       <div className="flex-grow p-4 overflow-y-auto">
         <h2 className="font-semibold mb-2 p-2">Applications</h2>
         <ul>
