@@ -26,6 +26,7 @@ export interface AppConfig {
   component: ComponentType<Partial<AppProps>>; // All apps receive AppProps
   isPinned?: boolean;
   defaultSize?: { width: number; height: number };
+  defaultMaximized?: boolean;
 }
 
 export interface WindowState {
@@ -45,7 +46,7 @@ export interface WindowState {
 export interface SessionInfo {
   isAuthenticated: boolean;
   loginDate: string; // "YYYY-MM-DD"
-  username: 'admin' | 'Fer';
+  username: 'admin' | 'Fernando';
 }
 
 
@@ -56,6 +57,7 @@ export interface AttendanceRecord {
     course: string;
     topic: string;
     status: 'Present' | 'Absent' | 'Excused';
+    notes?: string;
 }
 
 export interface StudentDocument {
@@ -184,6 +186,19 @@ export interface Appointment {
   notes?: string;
   signature?: string; // base64 data URL for student signature
   learningLog?: string; // What was learned in the session
+}
+
+// --- Quick Replies App Type ---
+export interface QuickReply {
+  title: string;
+  message: string;
+}
+
+export interface QuickReplyCategory {
+  id: string;
+  title: string;
+  icon: (className?: string) => JSX.Element;
+  replies: QuickReply[];
 }
 
 

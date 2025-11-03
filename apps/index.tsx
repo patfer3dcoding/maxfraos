@@ -4,6 +4,8 @@ import type { AppProps, FSNode, FileNode, DirectoryNode, FileData, Student, Chec
 import { MAXFRA_LOGO_B64, LIBRARY_IMAGES } from '../constants';
 // Fix: Re-export CheckInApp as it's defined in its own file but needed by constants.tsx through this barrel file.
 export { CheckInApp } from './CheckInApp';
+export { QuickRepliesApp } from './QuickRepliesApp';
+export { WhiteboardApp } from './WhiteboardApp';
 
 // --- Filesystem Utilities ---
 const findNodeByPath = (root: FSNode, path: string[]): DirectoryNode | null => {
@@ -64,12 +66,47 @@ const useDebounce = <T,>(value: T, delay: number): T => {
 
 // --- App Components ---
 
-export const NotepadApp: React.FC<Partial<AppProps>> = ({ file, setFs }) => {
-    const [content, setContent] = useState(file?.content || '');
+export const NotepadApp: React.FC<Partial<AppProps>> = ({ file, setFs, windowId }) => {
     const [currentFile, setCurrentFile] = useState(file);
+
+    const [content, setContent] = useState(() => {
+        if (!windowId) return file?.content || '';
+        const autoSaveKey = `notepad-autosave-${file?.name || windowId}`;
+        try {
+            const savedContent = localStorage.getItem(autoSaveKey);
+            return savedContent !== null ? savedContent : (file?.content || '');
+        } catch (e) {
+            console.error("Failed to load content from localStorage", e);
+            return file?.content || '';
+        }
+    });
+    
+    const contentRef = useRef(content);
+    useEffect(() => {
+        contentRef.current = content;
+    }, [content]);
+
+    useEffect(() => {
+        if (!windowId) return;
+
+        const intervalId = setInterval(() => {
+            const autoSaveKey = `notepad-autosave-${currentFile?.name || windowId}`;
+            try {
+                localStorage.setItem(autoSaveKey, contentRef.current);
+            } catch (e) {
+                console.error("Failed to auto-save content to localStorage", e);
+            }
+        }, 30000); // 30 seconds
+
+        return () => {
+            clearInterval(intervalId);
+        };
+    }, [windowId, currentFile]);
 
     const handleSave = () => {
         let fileName = currentFile?.name;
+        const wasNewFile = !fileName;
+
         if (!fileName) {
             fileName = prompt("Save as:", "new_document.txt") || undefined;
             if (!fileName) return;
@@ -77,6 +114,16 @@ export const NotepadApp: React.FC<Partial<AppProps>> = ({ file, setFs }) => {
 
         if (setFs) {
             setFs(fs => saveFileToFS(fs, [], fileName!, content));
+            
+            if (wasNewFile && windowId) {
+                try {
+                    const oldAutoSaveKey = `notepad-autosave-${windowId}`;
+                    localStorage.removeItem(oldAutoSaveKey);
+                } catch (e) {
+                    console.error("Failed to remove old autosave key from localStorage", e);
+                }
+            }
+            
             setCurrentFile({ name: fileName, content });
             alert("File saved!");
         }
@@ -94,214 +141,6 @@ export const NotepadApp: React.FC<Partial<AppProps>> = ({ file, setFs }) => {
                 placeholder="Start typing..."
             />
         </div>
-    );
-};
-
-export const MaxfraAiBrowserApp: React.FC<Partial<AppProps>> = () => {
-    const HOME_PAGE = 'https://www.google.com/webhp?igu=1';
-    
-    type Tab = {
-        id: number;
-        url: string;
-        title: string;
-        inputValue: string;
-    };
-
-    const tabIdCounter = useRef(0);
-
-    const createNewTab = (url = HOME_PAGE): Tab => {
-        tabIdCounter.current += 1;
-        return {
-            id: tabIdCounter.current,
-            url,
-            title: 'New Tab',
-            inputValue: url === HOME_PAGE ? '' : url,
-        };
-    };
-
-    const [tabs, setTabs] = useState<Tab[]>([createNewTab()]);
-    const [activeTabId, setActiveTabId] = useState(tabs[0].id);
-    const iframeRefs = useRef<Record<number, HTMLIFrameElement | null>>({});
-    
-    const activeTab = tabs.find(tab => tab.id === activeTabId);
-
-    const updateActiveTab = (updates: Partial<Tab>) => {
-        setTabs(prevTabs => prevTabs.map(tab => 
-            tab.id === activeTabId ? { ...tab, ...updates } : tab
-        ));
-    };
-    
-    const handleAddTab = () => {
-        const newTab = createNewTab();
-        setTabs([...tabs, newTab]);
-        setActiveTabId(newTab.id);
-    };
-
-    const handleCloseTab = (e: React.MouseEvent, tabId: number) => {
-        e.stopPropagation();
-        delete iframeRefs.current[tabId];
-        setTabs(prevTabs => {
-            const tabIndex = prevTabs.findIndex(tab => tab.id === tabId);
-            let newTabs = prevTabs.filter(tab => tab.id !== tabId);
-    
-            if (newTabs.length === 0) {
-                newTabs = [createNewTab()];
-                setActiveTabId(newTabs[0].id);
-            } else if (activeTabId === tabId) {
-                const newActiveIndex = Math.max(0, tabIndex - 1);
-                setActiveTabId(newTabs[newActiveIndex].id);
-            }
-            return newTabs;
-        });
-    };
-
-    const handleSwitchTab = (tabId: number) => setActiveTabId(tabId);
-
-    const handleNavigate = (e?: React.FormEvent) => {
-        e?.preventDefault();
-        if (!activeTab) return;
-        let url = activeTab.inputValue.trim();
-        if (!url) return;
-
-        const isUrl = url.includes('.') && !url.includes(' ');
-        if (isUrl) {
-             if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
-        } else {
-            url = `https://www.google.com/search?q=${encodeURIComponent(url)}`;
-        }
-        
-        updateActiveTab({ url, inputValue: url });
-    };
-
-    useEffect(() => {
-        if (!activeTabId) return;
-        const activeIframe = iframeRefs.current[activeTabId];
-        if (!activeIframe) return;
-
-        const updateTitleAndUrl = () => {
-            try {
-                const iframe = iframeRefs.current[activeTabId];
-                if (!iframe || !iframe.contentWindow) return;
-
-                const currentUrlInIframe = iframe.contentWindow.location.href;
-                const currentTitleInIframe = iframe.contentWindow.document.title;
-
-                setTabs(prevTabs => prevTabs.map(tab => {
-                    if (tab.id === activeTabId) {
-                        const newTitle = (currentTitleInIframe && tab.url !== HOME_PAGE) ? currentTitleInIframe : 'New Tab';
-                        const newUrl = (currentUrlInIframe && currentUrlInIframe !== 'about:blank') ? currentUrlInIframe : tab.url;
-                        
-                        return { ...tab, title: newTitle, url: newUrl, inputValue: newUrl === HOME_PAGE ? '' : newUrl };
-                    }
-                    return tab;
-                }));
-            } catch (e) {
-                // cross-origin, update title from url
-                setTabs(prevTabs => prevTabs.map(tab => {
-                    if (tab.id === activeTabId) {
-                        try {
-                           const domain = new URL(tab.url).hostname;
-                           return { ...tab, title: domain };
-                        } catch {
-                           return tab; // keep old title
-                        }
-                    }
-                    return tab;
-                }));
-            }
-        };
-
-        activeIframe.addEventListener('load', updateTitleAndUrl);
-        
-        return () => {
-            activeIframe.removeEventListener('load', updateTitleAndUrl);
-        };
-    }, [activeTabId, tabs.length]);
-
-    const handleRefresh = () => iframeRefs.current[activeTabId]?.contentWindow?.location.reload();
-    const handleBack = () => iframeRefs.current[activeTabId]?.contentWindow?.history.back();
-    const handleForward = () => iframeRefs.current[activeTabId]?.contentWindow?.history.forward();
-    const handleHome = () => updateActiveTab({ url: HOME_PAGE, inputValue: '' });
-
-    const NewTabPage = () => (
-      <div className="w-full h-full flex flex-col items-center justify-center bg-white text-black">
-        <h1 className="text-8xl font-bold mb-8">
-          <span className="text-[#4285F4]">G</span>
-          <span className="text-[#DB4437]">o</span>
-          <span className="text-[#F4B400]">o</span>
-          <span className="text-[#4285F4]">g</span>
-          <span className="text-[#0F9D58]">l</span>
-          <span className="text-[#DB4437]">e</span>
-        </h1>
-        <form onSubmit={handleNavigate} className="w-full max-w-xl">
-          <input
-            type="text"
-            value={activeTab?.inputValue || ''}
-            onChange={e => updateActiveTab({ inputValue: e.target.value })}
-            className="w-full px-5 py-3 text-lg rounded-full border-2 border-gray-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Search Google or type a URL"
-            autoFocus
-          />
-        </form>
-      </div>
-    );
-    
-    if (!activeTab) {
-        return <div className="w-full h-full bg-gray-200">Loading tabs...</div>;
-    }
-
-    return (
-      <div className="w-full h-full flex flex-col bg-gray-200 text-black">
-        <div className="flex-shrink-0 bg-gray-300 flex items-end pt-1">
-            {tabs.map(tab => (
-                <div
-                    key={tab.id}
-                    onClick={() => handleSwitchTab(tab.id)}
-                    className={`flex items-center max-w-[220px] h-9 -mb-px border-t border-l border-r ${activeTabId === tab.id ? 'bg-gray-200 border-gray-400 rounded-t-lg' : 'bg-gray-300 border-transparent hover:bg-gray-400/50 rounded-t-md'}`}
-                >
-                    <div className="flex items-center pl-3 pr-2 py-2 cursor-pointer grow shrink min-w-0">
-                      <span className="truncate text-sm select-none">{tab.title}</span>
-                    </div>
-                    <button onClick={(e) => handleCloseTab(e, tab.id)} className="p-1 mr-1 rounded-full hover:bg-red-500 hover:text-white shrink-0">
-                        {CloseIcon("w-3.5 h-3.5")}
-                    </button>
-                </div>
-            ))}
-            <button onClick={handleAddTab} className="p-1 ml-1 mb-1 rounded-md hover:bg-gray-400/50">
-                {PlusIcon("w-5 h-5")}
-            </button>
-        </div>
-        <div className="flex-shrink-0 p-1.5 bg-gray-200 flex items-center gap-1 border-b border-gray-300">
-            <button onClick={handleBack} className="p-2 rounded-full hover:bg-gray-300 text-gray-700">{ChevronLeftIcon()}</button>
-            <button onClick={handleForward} className="p-2 rounded-full hover:bg-gray-300 text-gray-700">{ChevronRightIcon()}</button>
-            <button onClick={handleRefresh} className="p-2 rounded-full hover:bg-gray-300 text-gray-700">{ReloadIcon()}</button>
-            <button onClick={handleHome} className="p-2 rounded-full hover:bg-gray-300 text-gray-700">{HomeIcon()}</button>
-            <form onSubmit={handleNavigate} className="flex-grow">
-                <input
-                    type="text"
-                    value={activeTab?.inputValue || ''}
-                    onChange={e => updateActiveTab({ inputValue: e.target.value })}
-                    className="w-full px-4 py-1.5 rounded-full border bg-white border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-            </form>
-        </div>
-        <div className="flex-grow relative bg-white">
-          {tabs.map(tab => (
-            <div key={tab.id} className="w-full h-full" style={{ display: activeTabId === tab.id ? 'block' : 'none' }}>
-              {tab.url === HOME_PAGE
-                ? <NewTabPage />
-                : <iframe
-                    ref={el => { if(el) iframeRefs.current[tab.id] = el; }}
-                    src={tab.url}
-                    className="w-full h-full border-none"
-                    title="Browser"
-                    sandbox="allow-forms allow-modals allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
-                  />
-              }
-            </div>
-          ))}
-        </div>
-      </div>
     );
 };
 
@@ -331,6 +170,8 @@ export const FileExplorerApp: React.FC<Partial<AppProps>> = ({ fs, setFs, openAp
 
         if (extension && imageExtensions.includes(extension)) {
             appId = 'imageViewer';
+        } else if (extension === 'wbd') {
+            appId = 'whiteboard';
         } else if (extension === 'doc' || extension === 'docx') {
             appId = 'maxfraOfficeSuite';
             fileData = { ...file, subApp: 'word' };
@@ -1935,7 +1776,11 @@ const AttendanceTabContent = React.memo(({ attendance, newRecord, onNewRecordCha
                         <option>Present</option><option>Absent</option><option>Excused</option>
                     </select>
                 </div>
-                 <button type="submit" className="md:col-start-4 w-full px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-semibold hover:bg-indigo-700">Add Log</button>
+                <div className="md:col-span-3">
+                    <label className="block text-sm font-medium text-slate-700">Notes (Optional)</label>
+                    <textarea value={newRecord.notes || ''} onChange={e => onNewRecordChange({...newRecord, notes: e.target.value})} placeholder="Add any relevant notes..." className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm h-16 resize-y"/>
+                </div>
+                 <button type="submit" className="w-full px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-semibold hover:bg-indigo-700">Add Log</button>
             </form>
         </FormSection>
         <FormSection title="Attendance History">
@@ -1947,8 +1792,9 @@ const AttendanceTabContent = React.memo(({ attendance, newRecord, onNewRecordCha
                                 <div>
                                     <p className="font-medium text-slate-800">{new Date(log.date + 'T12:00:00').toLocaleDateString('en-CA')} - <span className={`font-bold ${log.status === 'Present' ? 'text-green-600' : 'text-red-600'}`}>{log.status}</span></p>
                                     <p className="text-sm text-slate-600 mt-1">{log.topic}</p>
+                                    {log.notes && <p className="text-sm text-slate-500 mt-2 italic pl-2 border-l-2 border-slate-200">{log.notes}</p>}
                                 </div>
-                                <button onClick={() => onDelete(log.id)} className="p-1 rounded-full hover:bg-red-100">{TrashIcon("w-4 h-4 text-red-500")}</button>
+                                <button onClick={() => onDelete(log.id)} className="p-1 rounded-full hover:bg-red-100 flex-shrink-0 ml-4">{TrashIcon("w-4 h-4 text-red-500")}</button>
                             </li>
                         ))}
                     </ul>
@@ -2033,7 +1879,7 @@ export const StudentDatabaseApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) =
     const [searchQuery, setSearchQuery] = useState('');
     const debouncedSearchQuery = useDebounce(searchQuery, 300);
     const [activeTab, setActiveTab] = useState('Profile');
-    const [newAttendanceRecord, setNewAttendanceRecord] = useState<Omit<AttendanceRecord, 'id'>>({ date: new Date().toISOString().slice(0,10), course: '', topic: '', status: 'Present' });
+    const [newAttendanceRecord, setNewAttendanceRecord] = useState<Omit<AttendanceRecord, 'id'>>({ date: new Date().toISOString().slice(0,10), course: '', topic: '', status: 'Present', notes: '' });
 
     useEffect(() => {
         if (!fs) return;
@@ -2114,7 +1960,7 @@ export const StudentDatabaseApp: React.FC<Partial<AppProps>> = ({ fs, setFs }) =
         e.preventDefault();
         const updatedStudent = { ...formData, attendance: [...(formData.attendance || []), { id: `att-${Date.now()}`, ...newAttendanceRecord }] };
         setFormData(updatedStudent);
-        setNewAttendanceRecord({ date: new Date().toISOString().slice(0,10), course: '', topic: '', status: 'Present' });
+        setNewAttendanceRecord({ date: new Date().toISOString().slice(0,10), course: '', topic: '', status: 'Present', notes: '' });
     };
     
     const handleDeleteAttendance = (id: string) => {

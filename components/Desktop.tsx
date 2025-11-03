@@ -16,9 +16,11 @@ const DESKTOP_LAYOUT: Record<string, string[]> = {
   "Tools & Finance": [
     'calculator',
     'clipCalculator',
+    'whiteboard',
     'browser',
   ],
   "Productivity & Resources": [
+    'quickReplies',
     'maxfraOfficeSuite',
     'library',
     'notepad',

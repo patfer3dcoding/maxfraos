@@ -1,14 +1,17 @@
 import React, { useRef, useEffect } from 'react';
-import type { AppConfig } from '../types';
+import type { AppConfig, SessionInfo } from '../types';
+import * as Icons from './icons';
 
 interface StartMenuProps {
   isOpen: boolean;
   apps: AppConfig[];
   openApp: (appId: string) => void;
   closeStartMenu: () => void;
+  onLogout: () => void;
+  session: SessionInfo;
 }
 
-const StartMenu: React.FC<StartMenuProps> = ({ isOpen, apps, openApp, closeStartMenu }) => {
+const StartMenu: React.FC<StartMenuProps> = ({ isOpen, apps, openApp, closeStartMenu, onLogout, session }) => {
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,6 +47,18 @@ const StartMenu: React.FC<StartMenuProps> = ({ isOpen, apps, openApp, closeStart
             </li>
           ))}
         </ul>
+      </div>
+      <div className="flex-shrink-0 p-3 bg-black/20 border-t border-white/10 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center font-bold text-lg">
+            {session.username ? session.username.charAt(0).toUpperCase() : '?'}
+          </div>
+          <span className="font-semibold">{session.username}</span>
+        </div>
+        <button onClick={onLogout} className="p-2 rounded-full hover:bg-white/10" title="Log out">
+          {/* Fix: The PowerIcon is a function that returns JSX, not a component. It should be called directly. */}
+          {Icons.PowerIcon("w-6 h-6")}
+        </button>
       </div>
     </div>
   );

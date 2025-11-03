@@ -3,9 +3,10 @@ import Desktop from './components/Desktop';
 import Taskbar from './components/Taskbar';
 import StartMenu from './components/StartMenu';
 import Window from './components/Window';
-import { APPS, MAXFRA_LOGO_B64 } from './constants';
-import { WindowsLogoIcon } from './components/icons';
-import type { WindowState, FSNode, FileData, DirectoryNode, Student } from './types';
+import LoginScreen from './components/LoginScreen'; // Import the LoginScreen component
+import { APPS } from './constants';
+import { WindowsLogoIcon, MaxfraLogoIcon } from './components/icons';
+import type { WindowState, FSNode, FileData, DirectoryNode, Student, SessionInfo } from './types';
 
 const BACKGROUNDS = {
   default: `
@@ -112,6 +113,10 @@ const getInitialFileSystem = (): DirectoryNode => {
     
     const studentsFileContent = JSON.stringify(sampleStudents, null, 2);
     const appointmentsFileContent = JSON.stringify(sampleAppointments, null, 2);
+    const usersFileContent = JSON.stringify([
+        { "username": "admin", "password": "password123" },
+        { "username": "Fernando", "password": "Bailey88" }
+    ], null, 2);
 
     return {
         type: 'directory',
@@ -122,9 +127,10 @@ const getInitialFileSystem = (): DirectoryNode => {
             ]},
             { type: 'directory', name: 'Pictures', children: [] },
             { type: 'directory', name: 'system', children: [
+                { type: 'file', name: 'users.json', content: usersFileContent },
                 { type: 'file', name: 'maxfra-students.json', content: studentsFileContent },
                 { type: 'file', name: 'maxfra-appointments.json', content: appointmentsFileContent },
-                { type: 'file', name: 'maxfra-check-in-log.json', content: '[]' }, // Added check-in log file
+                { type: 'file', name: 'maxfra-check-in-log.json', content: '[]' },
                 { type: 'file', name: 'maxfra-transactions.json', content: '[]' },
             ]},
             { type: 'file', name: 'system.config', content: 'Initial system configuration.' },
@@ -133,6 +139,7 @@ const getInitialFileSystem = (): DirectoryNode => {
 };
 
 const App: React.FC = () => {
+  const [session, setSession] = useState<SessionInfo>({ isAuthenticated: false, username: 'admin', loginDate: '' });
   const [windows, setWindows] = useState<WindowState[]>([]);
   const [isStartMenuOpen, setStartMenuOpen] = useState(false);
   const [activeWindowId, setActiveWindowId] = useState<string | null>(null);
@@ -146,8 +153,8 @@ const App: React.FC = () => {
             const systemDir = parsed.children.find((c): c is DirectoryNode => c.name === 'system' && c.type === 'directory');
             if (systemDir) {
                 const appointmentsFile = systemDir.children.find(f => f.name === 'maxfra-appointments.json');
-                const checkInLogFile = systemDir.children.find(f => f.name === 'maxfra-check-in-log.json'); // Check for check-in log
-                if (appointmentsFile && checkInLogFile) { // Ensure both exist
+                const usersFile = systemDir.children.find(f => f.name === 'users.json');
+                if (appointmentsFile && usersFile) {
                     return parsed; 
                 }
             }
@@ -155,7 +162,6 @@ const App: React.FC = () => {
     } catch (e) {
         console.error("Failed to load or parse filesystem from localStorage, creating a new one.", e);
     }
-    // If localStorage is empty, invalid, or has an old structure, generate a fresh filesystem with sample data.
     return getInitialFileSystem();
   });
   const zIndexCounter = useRef(10);
@@ -183,6 +189,20 @@ const App: React.FC = () => {
     }
   }, [fs]);
 
+  const handleLoginSuccess = useCallback((username: 'admin' | 'Fernando') => {
+    setSession({
+      isAuthenticated: true,
+      username,
+      loginDate: new Date().toISOString().slice(0, 10),
+    });
+  }, []);
+
+  const handleLogout = useCallback(() => {
+    setSession({ isAuthenticated: false, username: 'admin', loginDate: '' });
+    setWindows([]); // Close all windows on logout
+    setActiveWindowId(null);
+    setStartMenuOpen(false);
+  }, []);
 
   const openApp = useCallback((appId: string, file?: FileData) => {
     setWindows(prev => {
@@ -208,7 +228,7 @@ const App: React.FC = () => {
         position: { x: 50 + prev.length * 20, y: 50 + prev.length * 20 },
         size: appConfig.defaultSize || { width: 640, height: 480 },
         isMinimized: false,
-        isMaximized: false,
+        isMaximized: appConfig.defaultMaximized || false,
         zIndex: zIndexCounter.current,
         component: appConfig.component,
         file: file,
@@ -262,48 +282,56 @@ const App: React.FC = () => {
 
   return (
     <div className="h-screen w-screen bg-cover bg-center" style={{ backgroundImage: backgroundImageUrl }}>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-none">
-        <div className="flex items-center gap-4">
-            {WindowsLogoIcon("h-24 w-24")}
-            <img src={MAXFRA_LOGO_B64} alt="Maxfra Academy Logo" className={`h-32 w-32 opacity-90 ${backgroundId === 'matrix' ? 'invert' : ''}`} />
-        </div>
-        <h1 className="text-4xl font-light text-white mt-6 [text-shadow:2px_2px_4px_rgba(0,0,0,0.7)]">
-            Maxfra Academy OS
-        </h1>
-      </div>
-      <Desktop apps={APPS} openApp={openApp} />
-      
-      {windows.map(ws => (
-        <Window
-          key={ws.id}
-          windowState={ws}
-          onClose={closeWindow}
-          onMinimize={minimizeWindow}
-          onMaximize={maximizeWindow}
-          onFocus={focusWindow}
-          onDrag={updateWindowPosition}
-          onResize={updateWindowSize}
-          isActive={ws.id === activeWindowId}
-          fs={fs}
-          setFs={setFs}
-          openApp={openApp}
-        />
-      ))}
+      {!session.isAuthenticated ? (
+        <LoginScreen onLoginSuccess={handleLoginSuccess} fs={fs} />
+      ) : (
+        <>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-none">
+            <div className="flex items-center gap-4">
+                {WindowsLogoIcon("h-24 w-24")}
+                {MaxfraLogoIcon(`h-32 w-32 opacity-90 ${backgroundId === 'matrix' ? 'invert' : ''}`)}
+            </div>
+            <h1 className="text-4xl font-light text-white mt-6 [text-shadow:2px_2px_4px_rgba(0,0,0,0.7)]">
+                Maxfra Academy OS
+            </h1>
+          </div>
+          <Desktop apps={APPS} openApp={openApp} />
+          
+          {windows.map(ws => (
+            <Window
+              key={ws.id}
+              windowState={ws}
+              onClose={closeWindow}
+              onMinimize={minimizeWindow}
+              onMaximize={maximizeWindow}
+              onFocus={focusWindow}
+              onDrag={updateWindowPosition}
+              onResize={updateWindowSize}
+              isActive={ws.id === activeWindowId}
+              fs={fs}
+              setFs={setFs}
+              openApp={openApp}
+            />
+          ))}
 
-      <StartMenu
-        isOpen={isStartMenuOpen}
-        apps={APPS}
-        openApp={openApp}
-        closeStartMenu={() => setStartMenuOpen(false)}
-      />
-      <Taskbar
-        windows={windows}
-        activeWindowId={activeWindowId}
-        toggleStartMenu={() => setStartMenuOpen(prev => !prev)}
-        openApp={openApp}
-        focusWindow={focusWindow}
-        minimizeWindow={minimizeWindow}
-      />
+          <StartMenu
+            isOpen={isStartMenuOpen}
+            apps={APPS}
+            openApp={openApp}
+            closeStartMenu={() => setStartMenuOpen(false)}
+            onLogout={handleLogout}
+            session={session}
+          />
+          <Taskbar
+            windows={windows}
+            activeWindowId={activeWindowId}
+            toggleStartMenu={() => setStartMenuOpen(prev => !prev)}
+            openApp={openApp}
+            focusWindow={focusWindow}
+            minimizeWindow={minimizeWindow}
+          />
+        </>
+      )}
     </div>
   );
 };

@@ -1,10 +1,16 @@
 import React from 'react';
-import { MAXFRA_LOGO_B64 } from '../constants';
 
 // --- Branding & OS Icons ---
 
 export const MaxfraLogoIcon = (className: string = 'w-8 h-8') => (
-  <img src={MAXFRA_LOGO_B64} alt="Maxfra Logo" className={className} />
+    <svg className={className} viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <path 
+            fillRule="evenodd" 
+            clipRule="evenodd" 
+            d="M0 100V0H20V70L50 20L80 70V0H100V100H80L50 50L20 100H0Z" 
+            fill="#F96921"
+        />
+    </svg>
 );
 
 export const WindowsLogoIcon = (className: string = 'w-8 h-8') => (
@@ -105,8 +111,23 @@ export const MicrophoneIcon = (className: string = 'w-5 h-5') => (
         <line x1="12" y1="19" x2="12" y2="23"></line>
     </svg>
 );
+export const PowerIcon = (className: string = 'w-5 h-5') => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+    <line x1="12" y1="2" x2="12" y2="12"></line>
+  </svg>
+);
 
 // --- App Specific Icons ---
+export const WhiteboardIcon = (className: string = 'w-8 h-8') => (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 3h18v12H3z"></path>
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <path d="M12 18v3"></path>
+        <path d="M8 21h8"></path>
+        <path d="m9 9 2 2 2-2 2 2"></path>
+    </svg>
+);
 export const MaxfraWordIcon = (className: string = 'w-8 h-8') => (
     <svg className={className} viewBox="0 0 256 256"><rect width="256" height="256" fill="none"/><path d="M56,48V208a8,8,0,0,0,8,8H192a8,8,0,0,0,8-8V88L144,48Z" opacity="0.2"/><path d="M192,216H64a8,8,0,0,1-8-8V48a8,8,0,0,1,8-8h80l56,40V208A8,8,0,0,1,192,216Z" fill="none" stroke="#2c5282" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round"/><polyline points="144 48 144 88 200 88" fill="none" stroke="#2c5282" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round"/><path d="M96,144l16,32,16-32,16,32,16-32" fill="none" stroke="#4299e1" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round"/></svg>
 );
@@ -118,106 +139,4 @@ export const MaxfraOutlookIcon = (className: string = 'w-8 h-8') => (
 );
 export const WhatsAppIcon = (className: string = 'w-6 h-6') => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.487 5.235 3.487 8.413-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.003 2.014.623 3.935 1.737 5.62l-1.157 4.224 4.273-1.12zM15.77 14.392c-.226-.113-1.333-.657-1.54- .732-.206-.075-.355-.113-.505.113-.149.227-.582.732-.714.882-.132.149-.263.168-.488.056-.227-.113-.964-.355-1.838-1.133-.68-.613-1.139-1.365-1.271-1.614-.132-.249-.013-.382.099-.505.101-.113.226-.29.34-.436.113-.149.149-.249.226-.412.075-.162.037-.302-.019-.412-.056-.113-.505-1.217-.689-1.666-.184-.449-.368-.386-.505-.392-.125-.006-.263-.006-.4-.006-.138 0-.355.056-.539.263-.184.206-.714.689-.714 1.666s.731 1.933.829 2.07c.099.138 1.455 2.206 3.528 3.109.553.249.985.399 1.32.512.522.176.992.15.1373.093.435-.056 1.333-.545 1.52-1.071.184-.523.184-.964.131-1.07c-.053-.113-.184-.168-.411-.28z"/>
-  </svg>
-);
-export const CheckInIcon = (className: string = 'w-8 h-8') => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-4-2V6a2 2 0 0 1 2-2h2"></path>
-    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-    <polyline points="9 14 12 17 15 11"></polyline>
-  </svg>
-);
-export const ClipIcon = (className: string = 'w-8 h-8') => (
-    <svg className={className} viewBox="0 0 250 82.3" fill="#00aeef" xmlns="http://www.w3.org/2000/svg">
-        <path d="M51.1 36.8c0-11.4-7.9-19.4-19.1-19.4H0v64.1h15.4V56.2h16.7c11.2 0 19-8 19-19.4zm-15.4 0c0 3.1-2.4 5.3-5.7 5.3H15.4V31.5h14.7c3.3 0 5.6 2.2 5.6 5.3z"/>
-        <path d="M83.9 81.5V17.4h15.4v64.1zM133.5 17.4l-23.7 64.1h16.8l5.2-14.7h29.8l5.2 14.7h16.8L159.9 17.4h-15.5zm-5.6 42.4l11-31.5 11 31.5z"/>
-        <path d="M250 36.8c0-11.4-7.9-19.4-19.1-19.4h-31.9v64.1h15.4V56.2h16.7c11.2 0 19-8 19-19.4zm-15.4 0c0 3.1-2.4 5.3-5.7 5.3h-14.7V31.5h14.7c3.3 0 5.6 2.2 5.6 5.3z"/>
-    </svg>
-);
-export const FileExplorerIcon = (className: string = 'w-8 h-8') => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path fill="#fbb03b" d="M20,6h-8l-2-2H4C2.9,4,2,4.9,2,6v12c0,1.1,0.9,2,2,2h16c1.1,0,2-0.9,2-2V8C22,6.9,21.1,6,20,6z"/>
-  </svg>
-);
-export const MaxfraAIBrowserIcon = (className: string = 'w-8 h-8') => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10"></circle>
-    <circle cx="12" cy="12" r="4"></circle>
-    <line x1="1.5" y1="12" x2="4" y2="12"></line>
-    <line x1="20" y1="12" x2="22.5" y2="12"></line>
-    <line x1="12" y1="1.5" x2="12" y2="4"></line>
-    <line x1="12" y1="20" x2="12" y2="22.5"></line>
-  </svg>
-);
-export const StudentDatabaseIcon = (className: string = 'w-8 h-8') => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-    <circle cx="9" cy="7" r="4"></circle>
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-  </svg>
-);
-export const CalendarIcon = (className: string = 'w-8 h-8') => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-    <line x1="16" y1="2" x2="16" y2="6"></line>
-    <line x1="8" y1="2" x2="8" y2="6"></line>
-    <line x1="3" y1="10" x2="21" y2="10"></line>
-  </svg>
-);
-export const SettingsIcon = (className: string = 'w-8 h-8') => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="3"></circle>
-    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-  </svg>
-);
-export const CalculatorIcon = (className: string = 'w-8 h-8') => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
-    <line x1="8" y1="6" x2="16" y2="6"></line>
-    <line x1="12" y1="10" x2="12" y2="18"></line>
-    <line x1="8" y1="14" x2="16" y2="14"></line>
-  </svg>
-);
-export const MaxfraOfficeSuiteIcon = (className: string = 'w-8 h-8') => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-    <rect x="7" y="7" width="4" height="4" fill="#4299e1"></rect>
-    <rect x="7" y="13" width="4" height="4" fill="#48bb78"></rect>
-    <rect x="13" y="7" width="4" height="4" fill="#0078d4"></rect>
-    <rect x="13" y="13" width="4" height="4" fill="#f56565"></rect>
-  </svg>
-);
-export const LibraryIcon = (className: string = 'w-8 h-8') => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-    <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 1 4 14.5V4.5A2.5 2.5 0 0 1 6.5 2z"></path>
-  </svg>
-);
-export const ImageIcon = (className: string = 'w-8 h-8') => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-    <circle cx="8.5" cy="8.5" r="1.5"></circle>
-    <polyline points="21 15 16 10 5 21"></polyline>
-  </svg>
-);
-
-// --- Window Control Component ---
-export const WindowControls = ({ onMinimize, onMaximize, onRestore, onClose, isMaximized }: { onMinimize: () => void; onMaximize: () => void; onRestore: () => void; onClose: () => void; isMaximized: boolean; }) => (
-  <div className="flex">
-    <button onClick={onMinimize} className="p-3 hover:bg-white/10">
-      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4"></path></svg>
-    </button>
-    <button onClick={isMaximized ? onRestore : onMaximize} className="p-3 hover:bg-white/10">
-      {isMaximized ? (
-        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 14h10v-5M5 10H3V4h6v2"></path></svg>
-      ) : (
-        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h18v18H3z"></path></svg>
-      )}
-    </button>
-    <button onClick={onClose} className="p-3 hover:bg-red-500">
-      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-    </button>
-  </div>
-);
+    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.487 5.235 3.487 8.413-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.003 2.014.623 3.935 1.737 5.62l-1.157 4.224 4.273-1.12zM15.77 14.392c-.226-.113-1.333-.657-1.54- .732-.206-.075-.355-.113-.505.113-.149.227-.582.732-.714.882-.132.149-.263.168-.488.056-.227-.113-.964-.355-1.838-1.133-.68-.613-1.139-1.365-1.271-1.614-.132-.249-.013-.382.099-.505.101-.113.226-.29.34-.436.113-.149.149-.249.226-.412.075-.162.037-.302-.019-.412-.056-.113-.505-1.217-.689-1.666-.184-.449-.368-.386-.505-.392-.125-.006-.263-.006-.4-.006-.138 0-.355.056-.539.2
